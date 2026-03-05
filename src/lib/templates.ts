@@ -7,6 +7,7 @@ export const COACHABLE_TEMPLATES: CoachableTemplate[] = [
     description:
       "Deliver specific, actionable feedback that drives improvement without damaging the relationship",
     icon: "clipboard",
+    color: "accent-green",
     learningConcepts: [
       {
         title: "SBI Feedback Model",
@@ -23,11 +24,34 @@ export const COACHABLE_TEMPLATES: CoachableTemplate[] = [
     ],
   },
   {
+    id: "one-on-one",
+    title: "1-on-1 Check-in",
+    description:
+      "Run effective, trust-building 1-on-1s that go beyond status updates",
+    icon: "chat",
+    color: "accent-blue",
+    learningConcepts: [
+      {
+        title: "Coaching vs. Directing",
+        summary:
+          "Great 1-on-1s are 90% listening, 10% talking. Ask open-ended questions like 'What's on your mind?' and 'What's the real challenge here for you?' rather than jumping to solutions. Let them own the agenda.",
+        framework: "GROW Model",
+      },
+      {
+        title: "Building Psychological Safety",
+        summary:
+          "Consistent, predictable 1-on-1s signal 'I have time for you.' Share your own challenges to model vulnerability. Follow up on things they mentioned last time. This compounds trust over months.",
+        framework: "Amy Edmondson's Framework",
+      },
+    ],
+  },
+  {
     id: "performance-review",
     title: "Performance Review",
     description:
       "Conduct a balanced, forward-looking performance conversation that motivates growth",
     icon: "academic",
+    color: "accent-violet",
     learningConcepts: [
       {
         title: "OSKAR Coaching Framework",
@@ -43,132 +67,12 @@ export const COACHABLE_TEMPLATES: CoachableTemplate[] = [
     ],
   },
   {
-    id: "onboarding-new-hire",
-    title: "Onboarding a New Hire",
-    description:
-      "Set expectations, build rapport, and create a strong foundation in the first conversation",
-    icon: "users",
-    learningConcepts: [
-      {
-        title: "Expectations Setting",
-        summary:
-          "Clearly define what success looks like at 30, 60, and 90 days. Discuss communication preferences, meeting cadence, and how you give feedback. Make implicit expectations explicit.",
-        framework: "30-60-90 Plan",
-      },
-      {
-        title: "Psychological Safety",
-        summary:
-          "New hires need to feel safe asking 'stupid questions.' Signal that vulnerability is welcome by sharing your own learning moments and explicitly saying 'There are no bad questions here.'",
-        framework: "Amy Edmondson's Framework",
-      },
-    ],
-  },
-  {
-    id: "compensation-discussion",
-    title: "Compensation Discussion",
-    description:
-      "Handle raise requests or explain compensation decisions with transparency and empathy",
-    icon: "dollar",
-    learningConcepts: [
-      {
-        title: "Interest-Based Negotiation",
-        summary:
-          "Focus on underlying interests, not positions. A raise request might really be about feeling valued, career progression, or market fairness. Understand the 'why' before discussing numbers.",
-        framework: "Getting to Yes",
-      },
-      {
-        title: "Transparency Within Constraints",
-        summary:
-          "Be as transparent as your organization allows about how compensation decisions are made. Even when you can't share exact numbers, explaining the process builds trust.",
-      },
-    ],
-  },
-  {
-    id: "cross-functional-conflict",
-    title: "Cross-Functional Conflict",
-    description:
-      "Navigate disagreements between teams or departments without taking sides",
-    icon: "shield",
-    learningConcepts: [
-      {
-        title: "DESC Conflict Resolution",
-        summary:
-          "Describe the situation objectively, Express how it affects your team, Specify what change you need, and outline the positive Consequences of resolving it. Stays fact-based, not emotional.",
-        framework: "DESC Model",
-      },
-      {
-        title: "Active Listening",
-        summary:
-          "In conflict, most people listen to respond, not to understand. Practice reflecting back what you hear ('So what I'm hearing is...') before offering your perspective. This alone de-escalates most tension.",
-      },
-    ],
-  },
-  {
-    id: "performance-improvement-plan",
-    title: "Performance Improvement Plan",
-    description:
-      "Have the PIP conversation with clarity, compassion, and a genuine path forward",
-    icon: "alert",
-    learningConcepts: [
-      {
-        title: "Progressive Accountability",
-        summary:
-          "A PIP should never be a surprise. Use the Accountability Dial: Mention → Invitation → Conversation → Boundary → Limit. By PIP time, you should be at the 'Boundary' stage.",
-        framework: "Accountability Dial",
-      },
-      {
-        title: "GROW Coaching Model",
-        summary:
-          "Even in a PIP conversation, coach toward a solution. Goal: what does good look like? Reality: where are they now? Options: what support can you provide? Will: what specific commitments will they make?",
-        framework: "GROW Model",
-      },
-    ],
-  },
-  {
-    id: "firing-reassignment",
-    title: "Firing or Reassignment",
-    description:
-      "Deliver the hardest news with dignity, clarity, and respect for the person",
-    icon: "alert",
-    learningConcepts: [
-      {
-        title: "Compassionate Directness",
-        summary:
-          "Don't soften the message so much that it's unclear. Lead with the decision, then show compassion. 'We've made the decision to let you go, effective today. I want to make sure you're supported through this.'",
-      },
-      {
-        title: "Legal & HR Boundaries",
-        summary:
-          "Know what you can and cannot say. Stick to facts, not opinions. Don't make promises about severance or references without HR approval. Have HR or legal present when required by policy.",
-      },
-    ],
-  },
-  {
-    id: "interview-hiring",
-    title: "Interview (Hiring)",
-    description:
-      "Run structured, equitable interviews that surface the best candidate signal",
-    icon: "chat",
-    learningConcepts: [
-      {
-        title: "Behavioral Interviewing",
-        summary:
-          "Past behavior is the best predictor of future behavior. Ask 'Tell me about a time when...' instead of hypotheticals. Probe with follow-ups: What was your role specifically? What was the outcome?",
-        framework: "STAR Method",
-      },
-      {
-        title: "Structured Evaluation",
-        summary:
-          "Score candidates on predefined criteria immediately after each interview. Don't compare candidates to each other — compare each to the rubric. This reduces bias significantly.",
-      },
-    ],
-  },
-  {
     id: "managing-up",
     title: "Managing Up",
     description:
       "Communicate effectively with your own manager — escalate, align, and advocate",
     icon: "lightbulb",
+    color: "accent-amber",
     learningConcepts: [
       {
         title: "Executive Communication",
@@ -190,6 +94,7 @@ export const COACHABLE_TEMPLATES: CoachableTemplate[] = [
     description:
       "Communicate reorgs, project cancellations, or strategy shifts without losing trust",
     icon: "ear",
+    color: "accent-red",
     learningConcepts: [
       {
         title: "Change Management",
@@ -201,6 +106,112 @@ export const COACHABLE_TEMPLATES: CoachableTemplate[] = [
         summary:
           "Separate observation from evaluation. State what happened (fact), how it affects people (feeling), what the underlying need is, and what you're requesting. Avoids triggering defensiveness.",
         framework: "NVC",
+      },
+    ],
+  },
+  {
+    id: "compensation-discussion",
+    title: "Compensation Discussion",
+    description:
+      "Handle raise requests or explain compensation decisions with transparency and empathy",
+    icon: "dollar",
+    color: "accent-teal",
+    learningConcepts: [
+      {
+        title: "Interest-Based Negotiation",
+        summary:
+          "Focus on underlying interests, not positions. A raise request might really be about feeling valued, career progression, or market fairness. Understand the 'why' before discussing numbers.",
+        framework: "Getting to Yes",
+      },
+      {
+        title: "Transparency Within Constraints",
+        summary:
+          "Be as transparent as your organization allows about how compensation decisions are made. Even when you can't share exact numbers, explaining the process builds trust.",
+      },
+    ],
+  },
+  {
+    id: "cross-functional-conflict",
+    title: "Cross-Functional Conflict",
+    description:
+      "Navigate disagreements between teams or departments without taking sides",
+    icon: "shield",
+    color: "accent-amber",
+    learningConcepts: [
+      {
+        title: "DESC Conflict Resolution",
+        summary:
+          "Describe the situation objectively, Express how it affects your team, Specify what change you need, and outline the positive Consequences of resolving it. Stays fact-based, not emotional.",
+        framework: "DESC Model",
+      },
+      {
+        title: "Active Listening",
+        summary:
+          "In conflict, most people listen to respond, not to understand. Practice reflecting back what you hear ('So what I'm hearing is...') before offering your perspective. This alone de-escalates most tension.",
+      },
+    ],
+  },
+  {
+    id: "onboarding-new-hire",
+    title: "Onboarding a New Hire",
+    description:
+      "Set expectations, build rapport, and create a strong foundation in the first conversation",
+    icon: "users",
+    color: "accent-green",
+    learningConcepts: [
+      {
+        title: "Expectations Setting",
+        summary:
+          "Clearly define what success looks like at 30, 60, and 90 days. Discuss communication preferences, meeting cadence, and how you give feedback. Make implicit expectations explicit.",
+        framework: "30-60-90 Plan",
+      },
+      {
+        title: "Psychological Safety",
+        summary:
+          "New hires need to feel safe asking 'stupid questions.' Signal that vulnerability is welcome by sharing your own learning moments and explicitly saying 'There are no bad questions here.'",
+        framework: "Amy Edmondson's Framework",
+      },
+    ],
+  },
+  {
+    id: "interview-hiring",
+    title: "Interview (Hiring)",
+    description:
+      "Run structured, equitable interviews that surface the best candidate signal",
+    icon: "users",
+    color: "accent-blue",
+    learningConcepts: [
+      {
+        title: "Behavioral Interviewing",
+        summary:
+          "Past behavior is the best predictor of future behavior. Ask 'Tell me about a time when...' instead of hypotheticals. Probe with follow-ups: What was your role specifically? What was the outcome?",
+        framework: "STAR Method",
+      },
+      {
+        title: "Structured Evaluation",
+        summary:
+          "Score candidates on predefined criteria immediately after each interview. Don't compare candidates to each other — compare each to the rubric. This reduces bias significantly.",
+      },
+    ],
+  },
+  {
+    id: "difficult-performance",
+    title: "Difficult Performance Conversations",
+    description:
+      "Navigate PIPs, reassignments, or terminations with clarity, compassion, and dignity",
+    icon: "alert",
+    color: "accent-red",
+    learningConcepts: [
+      {
+        title: "Progressive Accountability",
+        summary:
+          "A PIP should never be a surprise. Use the Accountability Dial: Mention → Invitation → Conversation → Boundary → Limit. By PIP time, you should be at the 'Boundary' stage.",
+        framework: "Accountability Dial",
+      },
+      {
+        title: "Compassionate Directness",
+        summary:
+          "Don't soften the message so much that it's unclear. Lead with the decision, then show compassion. 'We've made the decision to...' followed by 'I want to make sure you're supported through this.' Respect means honesty.",
       },
     ],
   },

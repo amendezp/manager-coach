@@ -29,26 +29,47 @@ export default function CoachPage() {
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   // Navigation
-  const goNext = useCallback(() => {
-    setCurrentStep((s) => Math.min(s + 1, 6) as WizardStep);
-  }, []);
-
-  const goBack = useCallback(() => {
-    if (currentStep === 5 && chatMessages.length > 0) {
-      // Going back from rehearsal step — warn and reset
-      if (
-        window.confirm(
-          "Going back will reset your rehearsal conversation. Continue?"
-        )
-      ) {
+  const goToStep = useCallback(
+    (step: WizardStep) => {
+      // If leaving rehearsal and chat exists, warn
+      if (currentStep === 5 && chatMessages.length > 0 && step !== 6) {
+        if (
+          !window.confirm(
+            "Going back will reset your rehearsal conversation. Continue?"
+          )
+        ) {
+          return;
+        }
         setChatMessages([]);
         setFeedbackRequested(false);
-        setCurrentStep((s) => (s - 1) as WizardStep);
       }
-    } else {
-      setCurrentStep((s) => Math.max(s - 1, 1) as WizardStep);
-    }
-  }, [currentStep, chatMessages.length]);
+      setCurrentStep(step);
+    },
+    [currentStep, chatMessages.length]
+  );
+
+  const goNext = useCallback(() => {
+    const next = Math.min(currentStep + 1, 6) as WizardStep;
+    goToStep(next);
+  }, [currentStep, goToStep]);
+
+  const goBack = useCallback(() => {
+    const prev = Math.max(currentStep - 1, 1) as WizardStep;
+    goToStep(prev);
+  }, [currentStep, goToStep]);
+
+  // Skip rehearsal — jump from step 4 directly to step 6
+  const skipToDebrief = useCallback(() => {
+    goToStep(6);
+  }, [goToStep]);
+
+  // Header step click — navigate to any completed step
+  const handleStepClick = useCallback(
+    (step: WizardStep) => {
+      goToStep(step);
+    },
+    [goToStep]
+  );
 
   // Context updates
   const updateContext = useCallback((updates: Partial<WizardContext>) => {
@@ -168,7 +189,7 @@ export default function CoachPage() {
 
   return (
     <div className="h-dvh flex flex-col bg-surface-secondary">
-      <WizardHeader currentStep={currentStep} />
+      <WizardHeader currentStep={currentStep} onStepClick={handleStepClick} />
 
       <div className={`flex-1 flex flex-col ${currentStep === 5 ? "overflow-hidden" : "overflow-y-auto"}`}>
         {currentStep === 1 && (
@@ -223,6 +244,8 @@ export default function CoachPage() {
           onSkip={currentStep === 1 ? goNext : undefined}
           showSkip={currentStep === 1}
           nextLabel={nextLabel}
+          showSkipRehearsal={currentStep === 4}
+          onSkipRehearsal={skipToDebrief}
         />
       )}
     </div>

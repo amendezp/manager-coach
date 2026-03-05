@@ -10,6 +10,8 @@ export default function WizardNav({
   onSkip,
   nextLabel,
   showSkip,
+  showSkipRehearsal,
+  onSkipRehearsal,
 }: {
   currentStep: number;
   canAdvance: boolean;
@@ -18,6 +20,8 @@ export default function WizardNav({
   onSkip?: () => void;
   nextLabel?: string;
   showSkip?: boolean;
+  showSkipRehearsal?: boolean;
+  onSkipRehearsal?: () => void;
 }) {
   return (
     <div className="flex-shrink-0 border-t border-border bg-surface/80 backdrop-blur-lg px-4 py-3">
@@ -35,7 +39,7 @@ export default function WizardNav({
           <div />
         )}
 
-        {/* Right side: skip + next */}
+        {/* Right side: skip + skip rehearsal + next */}
         <div className="flex items-center gap-2">
           {showSkip && onSkip && (
             <button
@@ -43,6 +47,14 @@ export default function WizardNav({
               className="px-4 py-2 rounded-lg text-sm font-medium text-text-tertiary hover:text-text-secondary hover:bg-brand-50 transition-all duration-200"
             >
               Skip
+            </button>
+          )}
+          {showSkipRehearsal && onSkipRehearsal && (
+            <button
+              onClick={onSkipRehearsal}
+              className="px-4 py-2 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary underline underline-offset-4 decoration-brand-200 hover:decoration-brand-400 transition-all duration-200"
+            >
+              Skip to Prep Sheet
             </button>
           )}
           <button

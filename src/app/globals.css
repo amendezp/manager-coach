@@ -166,6 +166,10 @@ body {
   background: var(--color-brand-900);
 }
 
+.gradient-user {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
 /* ─── Accent gradient squares (with noise texture) ─── */
 .accent-green {
   background: linear-gradient(135deg, #4ade80 0%, #16a34a 100%);

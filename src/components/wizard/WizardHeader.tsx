@@ -15,8 +15,10 @@ const STEPS: { step: WizardStep; label: string; shortLabel: string }[] = [
 
 export default function WizardHeader({
   currentStep,
+  onStepClick,
 }: {
   currentStep: WizardStep;
+  onStepClick?: (step: WizardStep) => void;
 }) {
   return (
     <header className="flex-shrink-0 border-b border-border bg-surface/80 backdrop-blur-xl px-4 py-3 z-10">
@@ -48,16 +50,21 @@ export default function WizardHeader({
             const isCompleted = step < currentStep;
             const isCurrent = step === currentStep;
             const isFuture = step > currentStep;
+            const isClickable = isCompleted && onStepClick;
 
             return (
               <div key={step} className="flex items-center flex-1 last:flex-none">
                 <div className="flex flex-col items-center gap-1 flex-shrink-0">
-                  <div
+                  <button
+                    onClick={() => isClickable && onStepClick(step)}
+                    disabled={!isClickable}
                     className={`
                       w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300
                       ${isCompleted ? "gradient-brand text-white" : ""}
                       ${isCurrent ? "gradient-brand text-white" : ""}
                       ${isFuture ? "bg-brand-50 text-text-tertiary border border-brand-200" : ""}
+                      ${isClickable ? "cursor-pointer hover:opacity-80 hover:ring-2 hover:ring-brand-300 hover:ring-offset-1" : ""}
+                      ${!isClickable && !isCurrent ? "cursor-default" : ""}
                     `}
                   >
                     {isCompleted ? (
@@ -65,7 +72,7 @@ export default function WizardHeader({
                     ) : (
                       step
                     )}
-                  </div>
+                  </button>
                   <span
                     className={`text-[9px] font-medium tracking-wide uppercase transition-colors duration-300 hidden sm:block ${
                       isCurrent

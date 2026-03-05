@@ -300,7 +300,7 @@ export default function MessageBubble({
           max-w-[85%] sm:max-w-[75%] rounded-lg text-sm leading-relaxed
           ${
             isUser
-              ? "gradient-brand text-white rounded-tr-sm px-4 py-3"
+              ? "gradient-user text-white rounded-tr-sm px-4 py-3"
               : "bg-surface border border-border rounded-tl-sm px-4 py-3"
           }
         `}

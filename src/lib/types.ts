@@ -28,6 +28,7 @@ export interface CoachableTemplate {
   title: string;
   description: string;
   icon: string;
+  color: string;
   learningConcepts: LearningConcept[];
 }
 

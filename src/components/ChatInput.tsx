@@ -69,7 +69,7 @@ export default function ChatInput({
                 flex-shrink-0 p-2.5 mr-2 mb-2 rounded-lg text-white transition-all duration-200
                 ${
                   input.trim() && !disabled
-                    ? "gradient-brand hover:opacity-90 active:scale-[0.95]"
+                    ? "gradient-user hover:opacity-90 active:scale-[0.95]"
                     : "bg-brand-100 text-brand-300"
                 }
                 disabled:opacity-30

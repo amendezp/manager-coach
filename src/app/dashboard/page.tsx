@@ -41,18 +41,22 @@ function getRelativeTime(dateStr: string) {
   return formatDate(dateStr);
 }
 
-// Map template icons to accent gradient classes
-function getAccentClass(iconName: string): string {
+// Get accent color from template data (or fallback for legacy sessions)
+function getAccentClass(templateData: Record<string, unknown> | null): string {
+  const color = templateData?.color as string;
+  if (color) return color;
+  const iconName = (templateData?.icon as string) || "";
   const map: Record<string, string> = {
     clipboard: "accent-green",
     users: "accent-blue",
     alert: "accent-red",
-    dollar: "accent-amber",
+    dollar: "accent-teal",
     book: "accent-teal",
-    ear: "accent-violet",
+    ear: "accent-red",
     lightbulb: "accent-amber",
-    shield: "accent-red",
-    academic: "accent-blue",
+    shield: "accent-amber",
+    academic: "accent-violet",
+    chat: "accent-blue",
     pencil: "accent-violet",
   };
   return map[iconName] || "accent-green";
@@ -167,7 +171,7 @@ export default function DashboardPage() {
               const templateData = ctx?.template as Record<string, unknown> | null;
               const iconName = (templateData?.icon as string) || "";
               const IconComponent = iconName ? getIcon(iconName) : SparklesIcon;
-              const accentClass = iconName ? getAccentClass(iconName) : "accent-green";
+              const accentClass = getAccentClass(templateData);
 
               return (
                 <Link

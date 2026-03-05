@@ -11,6 +11,7 @@ function makeCustomTemplate(description: string): CoachableTemplate {
     title: "Custom Conversation",
     description,
     icon: "pencil",
+    color: "accent-violet",
     learningConcepts: [
       {
         title: "Active Listening",
@@ -99,13 +100,13 @@ export default function StepTemplate({
               )}
 
               <div
-                className={`flex-shrink-0 w-10 h-10 rounded-xl border flex items-center justify-center transition-colors duration-200 ${
+                className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${
                   isSelected
-                    ? "bg-brand-100 border-brand-300"
-                    : "bg-brand-50 border-brand-200 group-hover:bg-brand-100"
+                    ? `${template.color} shadow-sm`
+                    : "bg-brand-50 border border-brand-200 group-hover:bg-brand-100"
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isSelected ? "text-brand-700" : "text-brand-500"}`} />
+                <Icon className={`w-5 h-5 relative z-10 ${isSelected ? "text-white" : "text-brand-500"}`} />
               </div>
               <div className="min-w-0 pt-0.5 pr-6">
                 <p
