@@ -99,7 +99,28 @@ export default function StepCalendar({
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-6 sm:pt-14 sm:pb-8">
-      <div className="text-center mb-10 animate-fade-up">
+      <div className="text-center mb-10 animate-fade-up relative">
+        {/* Top-right skip shortcut — always visible */}
+        <button
+          onClick={onSkip}
+          className="absolute -top-2 right-0 flex items-center gap-1 text-xs font-medium text-text-tertiary hover:text-brand-600 transition-colors group"
+        >
+          Skip
+          <svg
+            className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="m8.25 4.5 7.5 7.5-7.5 7.5"
+            />
+          </svg>
+        </button>
+
         <div className="inline-flex items-center justify-center mb-6">
           <div className="w-14 h-14 rounded-xl accent-green flex items-center justify-center">
             <CalendarIcon className="w-7 h-7 text-white relative z-10" />
