@@ -54,7 +54,7 @@ export default function WizardNav({
               onClick={onSkipRehearsal}
               className="px-4 py-2 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary underline underline-offset-4 decoration-brand-200 hover:decoration-brand-400 transition-all duration-200"
             >
-              Skip to Prep Sheet
+              Skip to prep sheet
             </button>
           )}
           <button

@@ -95,6 +95,9 @@ export default function SettingsPage() {
   };
 
   const handleDelete = async (id: string) => {
+    if (!window.confirm("Delete this document and all its chunks? This cannot be undone.")) {
+      return;
+    }
     setDeletingId(id);
     try {
       const res = await fetch(`/api/documents/${id}`, { method: "DELETE" });

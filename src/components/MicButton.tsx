@@ -32,8 +32,8 @@ export default function MicButton({
         ${isCompact ? "p-1.5 rounded-lg" : "p-2.5 rounded-lg"}
         ${
           isListening
-            ? "text-red-500 hover:text-red-600 hover:bg-red-50"
-            : "text-text-tertiary hover:text-text-secondary hover:bg-brand-50"
+            ? "text-red-500 hover:text-red-600 bg-red-50"
+            : "text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100"
         }
         ${className}
       `}

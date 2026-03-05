@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
 import { SparklesIcon, ArrowRightIcon, CalendarIcon } from "@/components/Icons";
+import { getRelativeTime } from "@/lib/utils";
 import UserMenu from "@/components/UserMenu";
 
 interface CalendarApiEvent {
@@ -13,6 +14,12 @@ interface CalendarApiEvent {
   start: string;
   end: string;
   attendees: string[];
+}
+
+interface SessionSummary {
+  id: string;
+  templateTitle: string | null;
+  createdAt: string;
 }
 
 function formatEventTime(isoString: string) {
@@ -65,7 +72,7 @@ const STEPS = [
   },
   {
     num: "03",
-    label: "Debrief",
+    label: "Prep Sheet",
     description: "Get a personalized prep sheet you can bring to the meeting",
     accentClass: "accent-amber",
   },
@@ -78,6 +85,7 @@ export default function LandingPage() {
 
   const [events, setEvents] = useState<CalendarApiEvent[]>([]);
   const [eventsLoading, setEventsLoading] = useState(false);
+  const [recentSessions, setRecentSessions] = useState<SessionSummary[]>([]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -87,6 +95,12 @@ export default function LandingPage() {
       .then((data) => setEvents(data.events || []))
       .catch(() => setEvents([]))
       .finally(() => setEventsLoading(false));
+
+    // Fetch recent sessions for returning users
+    fetch("/api/sessions")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: SessionSummary[]) => setRecentSessions(data.slice(0, 3)))
+      .catch(() => setRecentSessions([]));
   }, [isAuthenticated]);
 
   const handleSelectEvent = (event: CalendarApiEvent) => {
@@ -163,21 +177,13 @@ export default function LandingPage() {
                   get real-time feedback, and walk in with a personalized prep sheet.
                 </p>
 
-                <div className="flex items-center gap-3 mb-10">
-                  <Link
-                    href="/coach"
-                    className="inline-flex items-center gap-2.5 px-6 py-3 rounded-lg gradient-brand text-white font-semibold text-sm hover:opacity-90 active:scale-[0.98] transition-all duration-200"
-                  >
-                    <span>Start Coaching Session</span>
-                    <ArrowRightIcon className="w-4 h-4" />
-                  </Link>
-                  <Link
-                    href="/coach"
-                    className="inline-flex items-center gap-2 px-5 py-3 rounded-lg border border-border bg-surface text-text-primary font-semibold text-sm hover:bg-brand-50 transition-all duration-200"
-                  >
-                    View Sessions
-                  </Link>
-                </div>
+                <Link
+                  href="/coach"
+                  className="inline-flex items-center gap-2.5 px-6 py-3 rounded-lg gradient-brand text-white font-semibold text-sm hover:opacity-90 active:scale-[0.98] transition-all duration-200"
+                >
+                  <span>Start Coaching Session</span>
+                  <ArrowRightIcon className="w-4 h-4" />
+                </Link>
               </div>
 
               {/* How it works */}
@@ -200,6 +206,35 @@ export default function LandingPage() {
                   ))}
                 </div>
               </div>
+
+              {/* Recent sessions */}
+              {recentSessions.length > 0 && (
+                <div className="mt-8 animate-fade-up" style={{ animationDelay: "0.25s" }}>
+                  <div className="text-sm-caps text-text-tertiary mb-3">Recent sessions</div>
+                  <div className="space-y-1.5">
+                    {recentSessions.map((s) => (
+                      <Link
+                        key={s.id}
+                        href={`/dashboard/${s.id}`}
+                        className="flex items-center gap-3 px-4 py-3 rounded-lg border border-border bg-surface hover:bg-brand-50 hover:border-brand-300 transition-all duration-200"
+                      >
+                        <div className="w-2 h-2 rounded-full bg-brand-400 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-text-primary truncate">
+                            {s.templateTitle || "Coaching Session"}
+                          </p>
+                        </div>
+                        <span className="text-[11px] text-text-tertiary flex-shrink-0">
+                          {getRelativeTime(s.createdAt)}
+                        </span>
+                        <svg className="w-4 h-4 text-text-tertiary flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                        </svg>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Right column: Calendar events */}

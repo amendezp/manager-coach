@@ -6,7 +6,6 @@ import WizardHeader from "@/components/wizard/WizardHeader";
 import WizardNav from "@/components/wizard/WizardNav";
 import StepCalendar from "@/components/wizard/StepCalendar";
 import StepTemplateContext from "@/components/wizard/StepTemplateContext";
-import StepLearning from "@/components/wizard/StepLearning";
 import StepRehearsal from "@/components/wizard/StepRehearsal";
 import StepDebrief from "@/components/wizard/StepDebrief";
 
@@ -31,7 +30,7 @@ export default function CoachPage() {
   const goToStep = useCallback(
     (step: WizardStep) => {
       // If leaving rehearsal and chat exists, warn
-      if (currentStep === 4 && chatMessages.length > 0 && step !== 5) {
+      if (currentStep === 3 && chatMessages.length > 0 && step !== 4) {
         if (
           !window.confirm(
             "Going back will reset your rehearsal conversation. Continue?"
@@ -48,7 +47,7 @@ export default function CoachPage() {
   );
 
   const goNext = useCallback(() => {
-    const next = Math.min(currentStep + 1, 5) as WizardStep;
+    const next = Math.min(currentStep + 1, 4) as WizardStep;
     goToStep(next);
   }, [currentStep, goToStep]);
 
@@ -57,9 +56,9 @@ export default function CoachPage() {
     goToStep(prev);
   }, [currentStep, goToStep]);
 
-  // Skip rehearsal — jump from step 3 (Learn) directly to step 5 (Debrief)
+  // Skip rehearsal — jump from step 2 (Prepare) directly to step 4 (Prep Sheet)
   const skipToDebrief = useCallback(() => {
-    goToStep(5);
+    goToStep(4);
   }, [goToStep]);
 
   // Header step click — navigate to any completed step
@@ -157,10 +156,8 @@ export default function CoachPage() {
         }
         return context.template !== null;
       case 3:
-        return true; // learning is read-only
-      case 4:
         return feedbackRequested;
-      case 5:
+      case 4:
         return false; // last step
       default:
         return false;
@@ -173,24 +170,22 @@ export default function CoachPage() {
       case 1:
         return "Next";
       case 2:
-        return "Next";
-      case 3:
         return "Start Rehearsal";
-      case 4:
+      case 3:
         return "View Prep Sheet";
       default:
         return "Next";
     }
   })();
 
-  // Nav visible for steps 2-3 only (step 1 has inline CTAs, step 4 has chat, step 5 has inline actions)
-  const showNav = (currentStep >= 2 && currentStep <= 3) || (currentStep === 4 && feedbackRequested);
+  // Nav visible for step 2 only (step 1 has inline CTAs, step 3 has chat, step 4 has inline actions)
+  const showNav = currentStep === 2 || (currentStep === 3 && feedbackRequested);
 
   return (
     <div className="h-full flex flex-col bg-surface-secondary">
       <WizardHeader currentStep={currentStep} onStepClick={handleStepClick} />
 
-      <div className={`flex-1 flex flex-col ${currentStep === 4 ? "overflow-hidden" : "overflow-y-auto"}`}>
+      <div className={`flex-1 flex flex-col ${currentStep === 3 ? "overflow-hidden" : "overflow-y-auto"}`}>
         {currentStep === 1 && (
           <StepCalendar
             onSkip={goNext}
@@ -206,11 +201,7 @@ export default function CoachPage() {
           />
         )}
 
-        {currentStep === 3 && context.template && (
-          <StepLearning template={context.template} />
-        )}
-
-        {currentStep === 4 && (
+        {currentStep === 3 && (
           <StepRehearsal
             context={context}
             messages={chatMessages}
@@ -220,7 +211,7 @@ export default function CoachPage() {
           />
         )}
 
-        {currentStep === 5 && (
+        {currentStep === 4 && (
           <StepDebrief
             context={context}
             chatMessages={chatMessages}
@@ -237,10 +228,10 @@ export default function CoachPage() {
           canAdvance={canAdvance}
           onBack={goBack}
           onNext={goNext}
-          onSkip={currentStep === 1 ? goNext : undefined}
-          showSkip={currentStep === 1}
+          onSkip={undefined}
+          showSkip={false}
           nextLabel={nextLabel}
-          showSkipRehearsal={currentStep === 3}
+          showSkipRehearsal={currentStep === 2}
           onSkipRehearsal={skipToDebrief}
         />
       )}

@@ -15,7 +15,9 @@ interface SessionDetail {
   context: {
     attendees?: string;
     desiredOutcome?: string;
-    template?: { title?: string };
+    dateTime?: string;
+    additionalContext?: string;
+    template?: { title?: string; color?: string };
   } | null;
   debriefContent: string | null;
   createdAt: string;
@@ -170,6 +172,35 @@ export default function SessionDetailPage() {
             </button>
           </div>
         </div>
+
+        {/* Context summary */}
+        {session.context && (session.context.attendees || session.context.desiredOutcome) && (
+          <div
+            className="mb-4 px-4 py-3 rounded-lg border border-border bg-brand-50/50 animate-fade-up"
+            style={{ animationDelay: "0.05s" }}
+          >
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-text-secondary">
+              {session.context.attendees && (
+                <span>
+                  <span className="text-text-tertiary">With:</span>{" "}
+                  <span className="font-medium text-text-primary">{session.context.attendees}</span>
+                </span>
+              )}
+              {session.context.desiredOutcome && (
+                <span>
+                  <span className="text-text-tertiary">Goal:</span>{" "}
+                  <span className="font-medium text-text-primary">{session.context.desiredOutcome}</span>
+                </span>
+              )}
+              {session.context.dateTime && (
+                <span>
+                  <span className="text-text-tertiary">Date:</span>{" "}
+                  <span className="font-medium text-text-primary">{session.context.dateTime}</span>
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Debrief content */}
         <div

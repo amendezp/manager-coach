@@ -1,8 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { auth } from "@/auth";
-import { COPILOT_SYSTEM_PROMPT } from "@/lib/prompts/copilot";
-import { SIMULATOR_SYSTEM_PROMPT } from "@/lib/prompts/simulator";
-import { REFLECT_SYSTEM_PROMPT } from "@/lib/prompts/reflect";
 import { buildRehearsalPrompt } from "@/lib/prompts/wizard";
 import { buildDebriefPrompt } from "@/lib/prompts/debrief";
 import {
@@ -10,15 +7,9 @@ import {
   retrieveRelevantChunks,
   formatChunksForPrompt,
 } from "@/lib/rag/retrieve";
-import type { FlowType, WizardContext } from "@/lib/types";
+import type { WizardContext } from "@/lib/types";
 
 const anthropic = new Anthropic();
-
-const STATIC_PROMPTS: Partial<Record<FlowType, string>> = {
-  copilot: COPILOT_SYSTEM_PROMPT,
-  simulator: SIMULATOR_SYSTEM_PROMPT,
-  reflect: REFLECT_SYSTEM_PROMPT,
-};
 
 export async function POST(req: Request) {
   const { messages, flow, context } = await req.json();
@@ -58,8 +49,11 @@ export async function POST(req: Request) {
   } else if (flow === "debrief" && context) {
     systemPrompt = buildDebriefPrompt(context as WizardContext, ragContext);
   } else {
-    systemPrompt =
-      STATIC_PROMPTS[flow as FlowType] || COPILOT_SYSTEM_PROMPT;
+    // Only wizard and debrief flows are supported
+    systemPrompt = buildRehearsalPrompt(
+      (context as WizardContext) || { template: null, interactionNature: "", attendees: "", desiredOutcome: "", dateTime: "", additionalContext: "" },
+      ragContext
+    );
   }
 
   const stream = anthropic.messages.stream({

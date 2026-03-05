@@ -164,6 +164,20 @@ export default function StepTemplateContext({
                 <p className="text-xs text-text-tertiary mt-0.5 leading-relaxed">
                   {t.description}
                 </p>
+                {t.learningConcepts.some((c) => c.framework) && (
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {t.learningConcepts
+                      .filter((c) => c.framework)
+                      .map((c) => (
+                        <span
+                          key={c.framework}
+                          className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-brand-50 text-brand-600 border border-brand-200"
+                        >
+                          {c.framework}
+                        </span>
+                      ))}
+                  </div>
+                )}
               </div>
             </button>
           );
