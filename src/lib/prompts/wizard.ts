@@ -1,11 +1,15 @@
 import type { WizardContext } from "../types";
 
-export function buildRehearsalPrompt(context: WizardContext): string {
+export function buildRehearsalPrompt(context: WizardContext, ragContext?: string): string {
   const templateName = context.template?.title || "a management conversation";
   const learningFrameworks =
     context.template?.learningConcepts
       .map((c) => `- **${c.title}**${c.framework ? ` (${c.framework})` : ""}: ${c.summary}`)
       .join("\n") || "General coaching best practices";
+
+  const ragSection = ragContext
+    ? `\n\n## Reference Materials from Uploaded Documents\nThe following excerpts from the organization's reference materials are relevant to this conversation. Draw on these naturally when coaching — do not quote them verbatim, but use them to inform your guidance:\n\n${ragContext}\n`
+    : "";
 
   return `You are an expert coaching companion helping a middle manager rehearse for a crucial conversation. You combine evidence-based coaching methodology with deep empathy and practical specificity.
 
@@ -18,7 +22,7 @@ export function buildRehearsalPrompt(context: WizardContext): string {
 
 ## Relevant Frameworks
 The manager has just reviewed these concepts. Reference them naturally when relevant — don't lecture about them:
-${learningFrameworks}
+${learningFrameworks}${ragSection}
 
 ## Your Role — Rehearsal Partner
 You are role-playing as **${context.attendees || "the other person"}** in this conversation. The manager will practice what they want to say, and you respond IN CHARACTER as the other person would realistically respond.

@@ -1,4 +1,5 @@
 import {
+  index,
   integer,
   jsonb,
   pgTable,
@@ -6,6 +7,7 @@ import {
   text,
   timestamp,
   uuid,
+  vector,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "@auth/core/adapters";
 
@@ -74,3 +76,43 @@ export const coachingSessions = pgTable("coaching_session", {
   createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
   updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
 });
+
+// ── RAG Documents ────────────────────────────────────────────────
+
+export const documents = pgTable("document", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  filename: text("filename").notNull(),
+  fileType: text("fileType").notNull(), // "pdf" | "pptx"
+  fileSize: integer("fileSize").notNull(),
+  chunkCount: integer("chunkCount").notNull().default(0),
+  status: text("status").notNull().default("processing"), // "processing" | "ready" | "error"
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const documentChunks = pgTable(
+  "document_chunk",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    documentId: uuid("documentId")
+      .notNull()
+      .references(() => documents.id, { onDelete: "cascade" }),
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    content: text("content").notNull(),
+    chunkIndex: integer("chunkIndex").notNull(),
+    pageNumber: integer("pageNumber"),
+    embedding: vector("embedding", { dimensions: 1536 }).notNull(),
+    createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => ({
+    embeddingIdx: index("document_chunk_embedding_idx").using(
+      "hnsw",
+      table.embedding.op("vector_cosine_ops")
+    ),
+  })
+);

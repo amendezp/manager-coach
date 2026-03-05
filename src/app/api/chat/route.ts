@@ -1,9 +1,15 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { auth } from "@/auth";
 import { COPILOT_SYSTEM_PROMPT } from "@/lib/prompts/copilot";
 import { SIMULATOR_SYSTEM_PROMPT } from "@/lib/prompts/simulator";
 import { REFLECT_SYSTEM_PROMPT } from "@/lib/prompts/reflect";
 import { buildRehearsalPrompt } from "@/lib/prompts/wizard";
 import { buildDebriefPrompt } from "@/lib/prompts/debrief";
+import {
+  buildRetrievalQuery,
+  retrieveRelevantChunks,
+  formatChunksForPrompt,
+} from "@/lib/rag/retrieve";
 import type { FlowType, WizardContext } from "@/lib/types";
 
 const anthropic = new Anthropic();
@@ -17,12 +23,40 @@ const STATIC_PROMPTS: Partial<Record<FlowType, string>> = {
 export async function POST(req: Request) {
   const { messages, flow, context } = await req.json();
 
+  // ── RAG retrieval for wizard/debrief flows ──
+  let ragContext = "";
+
+  if ((flow === "wizard" || flow === "debrief") && context) {
+    try {
+      const session = await auth();
+      if (session?.user?.id) {
+        const lastUserMsg = [...messages]
+          .reverse()
+          .find((m: { role: string }) => m.role === "user");
+        const queryText = buildRetrievalQuery(
+          context as WizardContext,
+          lastUserMsg?.content
+        );
+        const chunks = await retrieveRelevantChunks(
+          session.user.id,
+          queryText,
+          5
+        );
+        ragContext = formatChunksForPrompt(chunks);
+      }
+    } catch (err) {
+      // RAG failure should not block the chat — graceful degradation
+      console.error("RAG retrieval error (non-blocking):", err);
+    }
+  }
+
+  // ── Build system prompt ──
   let systemPrompt: string;
 
   if (flow === "wizard" && context) {
-    systemPrompt = buildRehearsalPrompt(context as WizardContext);
+    systemPrompt = buildRehearsalPrompt(context as WizardContext, ragContext);
   } else if (flow === "debrief" && context) {
-    systemPrompt = buildDebriefPrompt(context as WizardContext);
+    systemPrompt = buildDebriefPrompt(context as WizardContext, ragContext);
   } else {
     systemPrompt =
       STATIC_PROMPTS[flow as FlowType] || COPILOT_SYSTEM_PROMPT;

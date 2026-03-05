@@ -1,7 +1,11 @@
 import type { WizardContext } from "../types";
 
-export function buildDebriefPrompt(context: WizardContext): string {
+export function buildDebriefPrompt(context: WizardContext, ragContext?: string): string {
   const templateName = context.template?.title || "a management conversation";
+
+  const ragSection = ragContext
+    ? `\n\n## Reference Materials\nIncorporate relevant insights from these organizational reference materials into your prep sheet, particularly in the Key Questions and Conversation Structure sections:\n\n${ragContext}\n`
+    : "";
 
   return `You are generating a structured preparation document for a middle manager who has just completed a coaching rehearsal for an upcoming crucial conversation.
 
@@ -11,7 +15,7 @@ export function buildDebriefPrompt(context: WizardContext): string {
 - **Desired outcome**: ${context.desiredOutcome || "Not specified"}
 - **When**: ${context.dateTime || "Not specified"}
 - **Nature of the interaction**: ${context.interactionNature || "Not specified"}
-- **Additional context**: ${context.additionalContext || "None provided"}
+- **Additional context**: ${context.additionalContext || "None provided"}${ragSection}
 
 ## Your Task
 

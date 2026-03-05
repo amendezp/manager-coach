@@ -183,6 +183,37 @@ export default function Sidebar({ user, isOpen, onClose }: SidebarProps) {
           })}
       </div>
 
+      {/* Settings link */}
+      <div className="px-3 py-2 border-t border-border">
+        <Link
+          href="/settings"
+          onClick={onClose}
+          className={`
+            flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors
+            ${
+              pathname === "/settings"
+                ? "bg-brand-50 border border-brand-200 font-medium text-text-primary"
+                : "text-text-secondary hover:text-text-primary hover:bg-brand-50/50 border border-transparent"
+            }
+          `}
+        >
+          <svg
+            className="w-4 h-4 flex-shrink-0"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
+            />
+          </svg>
+          Reference Materials
+        </Link>
+      </div>
+
       {/* User section at bottom */}
       {user && (
         <div className="border-t border-border px-3 py-3">
