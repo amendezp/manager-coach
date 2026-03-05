@@ -253,6 +253,53 @@ body {
   margin-bottom: 0.35em;
 }
 
+/* ─── Debrief Prose Overrides ─── */
+.debrief-prose {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+.debrief-prose h1 { font-size: 1.25rem; margin-top: 1.5em; }
+.debrief-prose h2 { font-size: 1.125rem; margin-top: 1.4em; border-bottom: 1px solid var(--color-border-light); padding-bottom: 0.35em; }
+.debrief-prose h3 { font-size: 1rem; margin-top: 1.2em; }
+.debrief-prose h4 { font-size: 0.9375rem; }
+
+.debrief-prose h1:first-child,
+.debrief-prose h2:first-child,
+.debrief-prose h3:first-child {
+  margin-top: 0;
+}
+
+.debrief-prose ul, .debrief-prose ol {
+  margin-left: 1.5em;
+  margin-bottom: 0.85em;
+}
+
+.debrief-prose li {
+  margin-bottom: 0.35em;
+}
+
+.debrief-prose blockquote {
+  background: var(--color-brand-50);
+  border-left: 3px solid var(--color-brand-400);
+  padding: 0.75em 1em;
+  border-radius: 0 10px 10px 0;
+  margin: 1em 0;
+}
+
+/* ─── Print Styles ─── */
+@media print {
+  body { background: white !important; }
+  header, .wizard-header, .wizard-nav, button, .no-print { display: none !important; }
+  .debrief-artifact {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+  .debrief-prose { font-size: 11pt; line-height: 1.6; color: #000; }
+  .debrief-prose h2 { border-bottom-color: #ccc; }
+}
+
 /* ─── Scrollbar ─── */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }

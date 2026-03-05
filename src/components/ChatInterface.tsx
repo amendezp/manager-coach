@@ -13,19 +13,55 @@ export default function ChatInterface({
   icon,
   placeholder,
   renderWelcome,
+  // Controlled mode props (optional — for wizard integration)
+  controlledMessages,
+  onMessagesChange,
+  extraContext,
+  hideHeader,
+  extraControls,
+  autoStart,
+  onSendReady,
 }: {
   flow: FlowType;
   title: string;
   subtitle: string;
   icon: React.ReactNode;
   placeholder: string;
-  renderWelcome: (onSelectScenario: (prompt: string) => void) => React.ReactNode;
+  renderWelcome?: (onSelectScenario: (prompt: string) => void) => React.ReactNode;
+  // Controlled mode
+  controlledMessages?: Message[];
+  onMessagesChange?: (messages: Message[]) => void;
+  extraContext?: Record<string, unknown>;
+  hideHeader?: boolean;
+  extraControls?: React.ReactNode;
+  autoStart?: boolean;
+  onSendReady?: (sendFn: (content: string) => void) => void;
 }) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  // Internal state (used when NOT in controlled mode)
+  const [internalMessages, setInternalMessages] = useState<Message[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [sessionStarted, setSessionStarted] = useState(false);
+  const [sessionStarted, setSessionStarted] = useState(autoStart ?? false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Determine if controlled
+  const isControlled = controlledMessages !== undefined;
+  const messages = isControlled ? controlledMessages : internalMessages;
+
+  const updateMessages = useCallback(
+    (updater: Message[] | ((prev: Message[]) => Message[])) => {
+      if (isControlled) {
+        const newMessages =
+          typeof updater === "function"
+            ? updater(controlledMessages!)
+            : updater;
+        onMessagesChange?.(newMessages);
+      } else {
+        setInternalMessages(updater as Message[] | ((prev: Message[]) => Message[]));
+      }
+    },
+    [isControlled, controlledMessages, onMessagesChange]
+  );
 
   const scrollToBottom = useCallback(() => {
     if (scrollAreaRef.current) {
@@ -56,7 +92,7 @@ export default function ChatInterface({
       }
 
       const updatedMessages = [...messages, userMessage];
-      setMessages(updatedMessages);
+      updateMessages(updatedMessages);
       setIsStreaming(true);
 
       const assistantMessage: Message = {
@@ -66,7 +102,7 @@ export default function ChatInterface({
         timestamp: Date.now(),
       };
 
-      setMessages([...updatedMessages, assistantMessage]);
+      updateMessages([...updatedMessages, assistantMessage]);
 
       try {
         const response = await fetch("/api/chat", {
@@ -78,6 +114,7 @@ export default function ChatInterface({
               role: m.role,
               content: m.content,
             })),
+            ...(extraContext ? { context: extraContext } : {}),
           }),
         });
 
@@ -106,7 +143,7 @@ export default function ChatInterface({
                 const parsed = JSON.parse(data);
                 if (parsed.text) {
                   fullText += parsed.text;
-                  setMessages((prev) => {
+                  updateMessages((prev: Message[]) => {
                     const updated = [...prev];
                     const last = updated[updated.length - 1];
                     if (last.role === "assistant") {
@@ -126,7 +163,7 @@ export default function ChatInterface({
         }
       } catch (error) {
         console.error("Chat error:", error);
-        setMessages((prev) => {
+        updateMessages((prev: Message[]) => {
           const updated = [...prev];
           const last = updated[updated.length - 1];
           if (last.role === "assistant") {
@@ -142,26 +179,41 @@ export default function ChatInterface({
         setIsStreaming(false);
       }
     },
-    [messages, isStreaming, sessionStarted, flow]
+    [messages, isStreaming, sessionStarted, flow, extraContext, updateMessages]
   );
 
   const startNewSession = useCallback(() => {
-    setMessages([]);
-    setSessionStarted(false);
-  }, []);
+    updateMessages([]);
+    setSessionStarted(autoStart ?? false);
+  }, [autoStart, updateMessages]);
+
+  // Expose sendMessage to parent via callback
+  useEffect(() => {
+    if (onSendReady) {
+      onSendReady(sendMessage);
+    }
+  }, [sendMessage, onSendReady]);
+
+  const showWelcome = !sessionStarted && renderWelcome && !autoStart;
 
   return (
-    <div className="h-dvh flex flex-col bg-surface-secondary">
-      <FlowHeader
-        title={title}
-        subtitle={subtitle}
-        icon={icon}
-        sessionStarted={sessionStarted}
-        onNewSession={startNewSession}
-      />
+    <div
+      className={`${hideHeader ? "" : "h-dvh"} flex flex-col ${hideHeader ? "flex-1" : "bg-surface-secondary"}`}
+    >
+      {!hideHeader && (
+        <FlowHeader
+          title={title}
+          subtitle={subtitle}
+          icon={icon}
+          sessionStarted={sessionStarted}
+          onNewSession={startNewSession}
+        />
+      )}
 
-      {!sessionStarted ? (
-        <div className="flex-1 overflow-y-auto">{renderWelcome(sendMessage)}</div>
+      {showWelcome ? (
+        <div className="flex-1 overflow-y-auto">
+          {renderWelcome!(sendMessage)}
+        </div>
       ) : (
         <div ref={scrollAreaRef} className="flex-1 overflow-y-auto">
           <div className="max-w-3xl mx-auto px-4 py-6 space-y-5">
@@ -175,6 +227,11 @@ export default function ChatInterface({
             <div ref={messagesEndRef} />
           </div>
         </div>
+      )}
+
+      {/* Extra controls (e.g., "Show Feedback" button) */}
+      {extraControls && sessionStarted && (
+        <div className="flex-shrink-0">{extraControls}</div>
       )}
 
       <ChatInput

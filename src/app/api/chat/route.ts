@@ -2,24 +2,35 @@ import Anthropic from "@anthropic-ai/sdk";
 import { COPILOT_SYSTEM_PROMPT } from "@/lib/prompts/copilot";
 import { SIMULATOR_SYSTEM_PROMPT } from "@/lib/prompts/simulator";
 import { REFLECT_SYSTEM_PROMPT } from "@/lib/prompts/reflect";
-import type { FlowType } from "@/lib/types";
+import { buildRehearsalPrompt } from "@/lib/prompts/wizard";
+import { buildDebriefPrompt } from "@/lib/prompts/debrief";
+import type { FlowType, WizardContext } from "@/lib/types";
 
 const anthropic = new Anthropic();
 
-const PROMPTS: Record<FlowType, string> = {
+const STATIC_PROMPTS: Partial<Record<FlowType, string>> = {
   copilot: COPILOT_SYSTEM_PROMPT,
   simulator: SIMULATOR_SYSTEM_PROMPT,
   reflect: REFLECT_SYSTEM_PROMPT,
 };
 
 export async function POST(req: Request) {
-  const { messages, flow } = await req.json();
+  const { messages, flow, context } = await req.json();
 
-  const systemPrompt = PROMPTS[flow as FlowType] || PROMPTS.copilot;
+  let systemPrompt: string;
+
+  if (flow === "wizard" && context) {
+    systemPrompt = buildRehearsalPrompt(context as WizardContext);
+  } else if (flow === "debrief" && context) {
+    systemPrompt = buildDebriefPrompt(context as WizardContext);
+  } else {
+    systemPrompt =
+      STATIC_PROMPTS[flow as FlowType] || COPILOT_SYSTEM_PROMPT;
+  }
 
   const stream = anthropic.messages.stream({
     model: "claude-sonnet-4-20250514",
-    max_tokens: 2048,
+    max_tokens: 4096,
     system: systemPrompt,
     messages: messages.map((m: { role: string; content: string }) => ({
       role: m.role,
