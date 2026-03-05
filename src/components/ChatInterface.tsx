@@ -48,19 +48,23 @@ export default function ChatInterface({
   const isControlled = controlledMessages !== undefined;
   const messages = isControlled ? controlledMessages : internalMessages;
 
+  // Ref to always track the latest messages — prevents stale closure during streaming
+  const messagesRef = useRef(messages);
+  messagesRef.current = messages;
+
   const updateMessages = useCallback(
     (updater: Message[] | ((prev: Message[]) => Message[])) => {
       if (isControlled) {
         const newMessages =
           typeof updater === "function"
-            ? updater(controlledMessages!)
+            ? updater(messagesRef.current)
             : updater;
         onMessagesChange?.(newMessages);
       } else {
         setInternalMessages(updater as Message[] | ((prev: Message[]) => Message[]));
       }
     },
-    [isControlled, controlledMessages, onMessagesChange]
+    [isControlled, onMessagesChange]
   );
 
   const scrollToBottom = useCallback(() => {
@@ -76,9 +80,15 @@ export default function ChatInterface({
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
+  // Use refs for values that sendMessage needs during streaming to avoid stale closures
+  const extraContextRef = useRef(extraContext);
+  extraContextRef.current = extraContext;
+  const isStreamingRef = useRef(isStreaming);
+  isStreamingRef.current = isStreaming;
+
   const sendMessage = useCallback(
     async (content: string) => {
-      if (isStreaming) return;
+      if (isStreamingRef.current) return;
 
       const userMessage: Message = {
         id: crypto.randomUUID(),
@@ -91,7 +101,8 @@ export default function ChatInterface({
         setSessionStarted(true);
       }
 
-      const updatedMessages = [...messages, userMessage];
+      const currentMessages = messagesRef.current;
+      const updatedMessages = [...currentMessages, userMessage];
       updateMessages(updatedMessages);
       setIsStreaming(true);
 
@@ -105,6 +116,7 @@ export default function ChatInterface({
       updateMessages([...updatedMessages, assistantMessage]);
 
       try {
+        const ctx = extraContextRef.current;
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -114,7 +126,7 @@ export default function ChatInterface({
               role: m.role,
               content: m.content,
             })),
-            ...(extraContext ? { context: extraContext } : {}),
+            ...(ctx ? { context: ctx } : {}),
           }),
         });
 
@@ -146,7 +158,7 @@ export default function ChatInterface({
                   updateMessages((prev: Message[]) => {
                     const updated = [...prev];
                     const last = updated[updated.length - 1];
-                    if (last.role === "assistant") {
+                    if (last && last.role === "assistant") {
                       updated[updated.length - 1] = {
                         ...last,
                         content: fullText,
@@ -166,7 +178,7 @@ export default function ChatInterface({
         updateMessages((prev: Message[]) => {
           const updated = [...prev];
           const last = updated[updated.length - 1];
-          if (last.role === "assistant") {
+          if (last && last.role === "assistant") {
             updated[updated.length - 1] = {
               ...last,
               content:
@@ -179,7 +191,7 @@ export default function ChatInterface({
         setIsStreaming(false);
       }
     },
-    [messages, isStreaming, sessionStarted, flow, extraContext, updateMessages]
+    [sessionStarted, flow, updateMessages]
   );
 
   const startNewSession = useCallback(() => {
@@ -198,7 +210,7 @@ export default function ChatInterface({
 
   return (
     <div
-      className={`${hideHeader ? "" : "h-dvh"} flex flex-col ${hideHeader ? "flex-1" : "bg-surface-secondary"}`}
+      className={`${hideHeader ? "" : "h-dvh"} flex flex-col min-h-0 ${hideHeader ? "flex-1" : "bg-surface-secondary"}`}
     >
       {!hideHeader && (
         <FlowHeader
@@ -215,7 +227,7 @@ export default function ChatInterface({
           {renderWelcome!(sendMessage)}
         </div>
       ) : (
-        <div ref={scrollAreaRef} className="flex-1 overflow-y-auto">
+        <div ref={scrollAreaRef} className="flex-1 overflow-y-auto min-h-0">
           <div className="max-w-3xl mx-auto px-4 py-6 space-y-5">
             {messages.map((message, i) => (
               <MessageBubble

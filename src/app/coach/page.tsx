@@ -69,6 +69,10 @@ export default function CoachPage() {
       case 1:
         return true; // calendar is optional
       case 2:
+        // Custom templates need a description to advance
+        if (context.template?.id === "custom") {
+          return context.template.description.trim() !== "";
+        }
         return context.template !== null;
       case 3:
         return (
@@ -111,7 +115,7 @@ export default function CoachPage() {
     <div className="h-dvh flex flex-col bg-surface-secondary">
       <WizardHeader currentStep={currentStep} />
 
-      <div className="flex-1 overflow-y-auto flex flex-col">
+      <div className={`flex-1 flex flex-col ${currentStep === 5 ? "overflow-hidden" : "overflow-y-auto"}`}>
         {currentStep === 1 && <StepCalendar onSkip={goNext} />}
 
         {currentStep === 2 && (

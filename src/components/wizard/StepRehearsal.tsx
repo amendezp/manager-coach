@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import ChatInterface from "../ChatInterface";
 import { ChatBubbleIcon } from "../Icons";
 import type { Message, WizardContext } from "@/lib/types";
@@ -19,6 +19,7 @@ export default function StepRehearsal({
   onRequestFeedback: () => void;
 }) {
   const [showFeedbackConfirm, setShowFeedbackConfirm] = useState(false);
+  const [autoSendDone, setAutoSendDone] = useState(false);
   const sendFnRef = useRef<((content: string) => void) | null>(null);
 
   const handleSendReady = useCallback(
@@ -27,6 +28,25 @@ export default function StepRehearsal({
     },
     []
   );
+
+  // Auto-send initial message to trigger the AI's opening when rehearsal starts.
+  // Uses state (not ref) to survive React strict mode's double-mount cycle.
+  useEffect(() => {
+    if (autoSendDone || messages.length > 0) return;
+
+    let sent = false;
+    const timer = setInterval(() => {
+      if (sendFnRef.current && !sent) {
+        sent = true;
+        setAutoSendDone(true);
+        sendFnRef.current(
+          "I'm ready to start the rehearsal. Please review my context and help me prepare."
+        );
+      }
+    }, 400);
+
+    return () => clearInterval(timer);
+  }, [autoSendDone, messages.length]);
 
   const handleFeedbackRequest = useCallback(() => {
     onRequestFeedback();
@@ -92,7 +112,7 @@ export default function StepRehearsal({
   ) : null;
 
   return (
-    <div className="flex flex-col flex-1">
+    <div className="flex flex-col flex-1 min-h-0">
       <ChatInterface
         flow="wizard"
         title="Rehearsal"
