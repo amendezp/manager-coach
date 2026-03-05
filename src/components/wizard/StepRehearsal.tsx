@@ -30,7 +30,6 @@ export default function StepRehearsal({
   );
 
   // Auto-send initial message to trigger the AI's opening when rehearsal starts.
-  // Uses state (not ref) to survive React strict mode's double-mount cycle.
   useEffect(() => {
     if (autoSendDone || messages.length > 0) return;
 
@@ -50,7 +49,6 @@ export default function StepRehearsal({
 
   const handleFeedbackRequest = useCallback(() => {
     onRequestFeedback();
-    // Trigger the feedback request through the chat
     if (sendFnRef.current) {
       sendFnRef.current(
         "[FEEDBACK_REQUEST] Please end the rehearsal and provide your structured feedback now. Show what I did well and what could improve."
@@ -58,7 +56,6 @@ export default function StepRehearsal({
     }
   }, [onRequestFeedback]);
 
-  // Check if there are enough messages to show feedback button (at least 2 user messages)
   const userMessageCount = messages.filter((m) => m.role === "user").length;
   const canRequestFeedback = userMessageCount >= 2 && !feedbackRequested;
 
@@ -75,13 +72,13 @@ export default function StepRehearsal({
                 handleFeedbackRequest();
                 setShowFeedbackConfirm(false);
               }}
-              className="px-4 py-1.5 rounded-lg text-xs font-semibold gradient-brand text-white shadow-sm hover:shadow-md transition-all active:scale-95"
+              className="px-4 py-1.5 rounded-lg text-xs font-semibold gradient-brand text-white hover:opacity-90 transition-all active:scale-[0.98]"
             >
               Yes, show feedback
             </button>
             <button
               onClick={() => setShowFeedbackConfirm(false)}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium text-text-tertiary hover:text-text-secondary hover:bg-surface-tertiary transition-all"
+              className="px-3 py-1.5 rounded-lg text-xs font-medium text-text-tertiary hover:text-text-secondary hover:bg-brand-50 transition-all"
             >
               Keep going
             </button>
@@ -89,7 +86,7 @@ export default function StepRehearsal({
         ) : canRequestFeedback ? (
           <button
             onClick={() => setShowFeedbackConfirm(true)}
-            className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium text-brand-600 bg-brand-50 hover:bg-brand-100 border border-brand-100 hover:border-brand-200 transition-all duration-200"
+            className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium text-text-secondary bg-brand-50 hover:bg-brand-100 border border-brand-200 transition-all duration-200"
           >
             <svg
               className="w-3.5 h-3.5"

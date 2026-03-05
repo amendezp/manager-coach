@@ -66,7 +66,7 @@ export default function CoachPage() {
         ...prev,
         calendarEvent: event,
         attendees: event.attendees.join(", "),
-        dateTime: `${event.date} at ${event.time}`,
+        dateTime: event.date,
         interactionNature: event.title,
       }));
     },

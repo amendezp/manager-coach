@@ -19,17 +19,17 @@ export default function WizardHeader({
   currentStep: WizardStep;
 }) {
   return (
-    <header className="flex-shrink-0 border-b border-border/60 bg-surface/70 backdrop-blur-xl px-4 py-3 z-10">
+    <header className="flex-shrink-0 border-b border-border bg-surface/80 backdrop-blur-xl px-4 py-3 z-10">
       <div className="max-w-3xl mx-auto">
         {/* Top row: back + title */}
         <div className="flex items-center gap-3 mb-3">
           <Link
             href="/"
-            className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-tertiary transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-brand-50 transition-colors"
           >
             <ArrowLeftIcon className="w-4 h-4 text-text-secondary" />
           </Link>
-          <div className="w-8 h-8 rounded-lg gradient-brand flex items-center justify-center shadow-sm shadow-brand-200/30">
+          <div className="w-8 h-8 rounded-lg gradient-brand flex items-center justify-center">
             <SparklesIcon className="w-4 h-4 text-white" />
           </div>
           <div>
@@ -55,9 +55,9 @@ export default function WizardHeader({
                   <div
                     className={`
                       w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300
-                      ${isCompleted ? "gradient-brand text-white shadow-sm shadow-brand-200/30" : ""}
-                      ${isCurrent ? "gradient-brand text-white shadow-sm shadow-brand-200/30 pulse-active" : ""}
-                      ${isFuture ? "bg-surface-tertiary text-text-tertiary border border-border/80" : ""}
+                      ${isCompleted ? "gradient-brand text-white" : ""}
+                      ${isCurrent ? "gradient-brand text-white" : ""}
+                      ${isFuture ? "bg-brand-50 text-text-tertiary border border-brand-200" : ""}
                     `}
                   >
                     {isCompleted ? (
@@ -69,7 +69,7 @@ export default function WizardHeader({
                   <span
                     className={`text-[9px] font-medium tracking-wide uppercase transition-colors duration-300 hidden sm:block ${
                       isCurrent
-                        ? "text-brand-600"
+                        ? "text-text-primary"
                         : isCompleted
                           ? "text-text-secondary"
                           : "text-text-tertiary"
@@ -80,7 +80,7 @@ export default function WizardHeader({
                   <span
                     className={`text-[9px] font-medium tracking-wide uppercase transition-colors duration-300 sm:hidden ${
                       isCurrent
-                        ? "text-brand-600"
+                        ? "text-text-primary"
                         : isCompleted
                           ? "text-text-secondary"
                           : "text-text-tertiary"
@@ -92,7 +92,7 @@ export default function WizardHeader({
                 {i < STEPS.length - 1 && (
                   <div
                     className={`flex-1 h-0.5 mx-1.5 rounded-full transition-colors duration-300 ${
-                      step < currentStep ? "bg-brand-400" : "bg-border"
+                      step < currentStep ? "bg-brand-700" : "bg-brand-200"
                     }`}
                   />
                 )}

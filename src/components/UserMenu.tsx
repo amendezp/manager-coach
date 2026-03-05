@@ -26,7 +26,7 @@ export default function UserMenu({
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-surface-tertiary transition-colors"
+        className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-brand-50 transition-colors"
       >
         {user.image ? (
           <img
@@ -35,7 +35,7 @@ export default function UserMenu({
             className="w-8 h-8 rounded-full border border-border"
           />
         ) : (
-          <div className="w-8 h-8 rounded-full bg-brand-100 border border-brand-200 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-brand-50 border border-brand-200 flex items-center justify-center">
             <span className="text-xs font-bold text-brand-700">
               {(user.name || user.email || "U")[0].toUpperCase()}
             </span>
@@ -56,8 +56,8 @@ export default function UserMenu({
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1.5 w-52 bg-surface border border-border rounded-xl shadow-xl shadow-black/10 z-50 overflow-hidden animate-fade-up-sm">
-          <div className="px-4 py-3 border-b border-border/60">
+        <div className="absolute right-0 top-full mt-1.5 w-52 bg-surface border border-border rounded-xl shadow-lg z-50 overflow-hidden animate-fade-up-sm">
+          <div className="px-4 py-3 border-b border-border">
             <p className="text-sm font-semibold text-text-primary truncate">
               {user.name}
             </p>
@@ -68,7 +68,7 @@ export default function UserMenu({
             <Link
               href="/dashboard"
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-tertiary transition-colors"
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-brand-50 transition-colors"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z" />
@@ -78,7 +78,7 @@ export default function UserMenu({
             <Link
               href="/coach"
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-tertiary transition-colors"
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-brand-50 transition-colors"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -87,7 +87,7 @@ export default function UserMenu({
             </Link>
           </div>
 
-          <div className="border-t border-border/60 py-1">
+          <div className="border-t border-border py-1">
             <button
               onClick={() => signOut({ callbackUrl: "/" })}
               className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-secondary hover:text-red-600 hover:bg-red-50 transition-colors"

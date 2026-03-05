@@ -129,7 +129,7 @@ function FeedbackCard({ content }: { content: string }) {
     <div className="w-full animate-slide-in-left">
       {/* Title */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-8 h-8 rounded-full gradient-brand flex items-center justify-center shadow-sm shadow-brand-200/50">
+        <div className="w-8 h-8 rounded-lg gradient-brand flex items-center justify-center">
           <SparklesIcon className="w-4 h-4 text-white" />
         </div>
         <h3 className="text-base font-bold text-text-primary">
@@ -140,7 +140,7 @@ function FeedbackCard({ content }: { content: string }) {
       {/* Two-column layout */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
         {/* Strengths */}
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-4">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center">
               <svg
@@ -178,7 +178,7 @@ function FeedbackCard({ content }: { content: string }) {
         </div>
 
         {/* Improvements */}
-        <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4">
+        <div className="rounded-lg border border-amber-200 bg-amber-50/60 p-4">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center">
               <svg
@@ -218,7 +218,7 @@ function FeedbackCard({ content }: { content: string }) {
 
       {/* Key Takeaway */}
       {takeaway && (
-        <div className="rounded-xl border border-brand-200 bg-brand-50/60 p-4">
+        <div className="rounded-lg border border-brand-200 bg-brand-50 p-4">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-6 h-6 rounded-full bg-brand-100 flex items-center justify-center">
               <svg
@@ -273,12 +273,12 @@ export default function MessageBubble({
       }`}
     >
       {!isUser && (
-        <div className="flex-shrink-0 w-8 h-8 rounded-full gradient-brand flex items-center justify-center mt-0.5 shadow-sm shadow-brand-200/50">
+        <div className="flex-shrink-0 w-8 h-8 rounded-lg gradient-brand flex items-center justify-center mt-0.5">
           <SparklesIcon className="w-4 h-4 text-white" />
         </div>
       )}
       {isUser && (
-        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-surface-tertiary border border-border flex items-center justify-center mt-0.5">
+        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-brand-50 border border-brand-200 flex items-center justify-center mt-0.5">
           <svg
             className="w-4 h-4 text-text-tertiary"
             fill="none"
@@ -297,11 +297,11 @@ export default function MessageBubble({
 
       <div
         className={`
-          max-w-[85%] sm:max-w-[75%] rounded-2xl text-sm leading-relaxed
+          max-w-[85%] sm:max-w-[75%] rounded-lg text-sm leading-relaxed
           ${
             isUser
-              ? "gradient-brand text-white rounded-tr-md px-4 py-3 shadow-sm shadow-brand-200/30"
-              : "bg-surface border border-border/80 rounded-tl-md px-4 py-3 shadow-sm"
+              ? "gradient-brand text-white rounded-tr-sm px-4 py-3"
+              : "bg-surface border border-border rounded-tl-sm px-4 py-3"
           }
         `}
       >

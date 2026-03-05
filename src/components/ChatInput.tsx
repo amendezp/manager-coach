@@ -45,11 +45,11 @@ export default function ChatInput({
       <div className="max-w-3xl mx-auto">
         <div
           className={`
-            relative rounded-2xl p-px transition-all duration-300
-            ${isFocused ? "gradient-border-focus shadow-lg shadow-brand-100/30" : "bg-border/60"}
+            relative rounded-xl border transition-all duration-200
+            ${isFocused ? "border-brand-700 shadow-sm" : "border-border"}
           `}
         >
-          <div className="flex items-end gap-2 bg-surface rounded-2xl">
+          <div className="flex items-end gap-2 bg-surface rounded-xl">
             <textarea
               ref={textareaRef}
               value={input}
@@ -66,11 +66,11 @@ export default function ChatInput({
               onClick={handleSubmit}
               disabled={disabled || !input.trim()}
               className={`
-                flex-shrink-0 p-2.5 mr-2 mb-2 rounded-xl text-white transition-all duration-200
+                flex-shrink-0 p-2.5 mr-2 mb-2 rounded-lg text-white transition-all duration-200
                 ${
                   input.trim() && !disabled
-                    ? "gradient-brand shadow-sm shadow-brand-200/30 hover:shadow-md hover:shadow-brand-200/40 active:scale-95"
-                    : "bg-surface-tertiary text-text-tertiary"
+                    ? "gradient-brand hover:opacity-90 active:scale-[0.95]"
+                    : "bg-brand-100 text-brand-300"
                 }
                 disabled:opacity-30
               `}

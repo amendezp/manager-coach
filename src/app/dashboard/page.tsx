@@ -41,6 +41,23 @@ function getRelativeTime(dateStr: string) {
   return formatDate(dateStr);
 }
 
+// Map template icons to accent gradient classes
+function getAccentClass(iconName: string): string {
+  const map: Record<string, string> = {
+    clipboard: "accent-green",
+    users: "accent-blue",
+    alert: "accent-red",
+    dollar: "accent-amber",
+    book: "accent-teal",
+    ear: "accent-violet",
+    lightbulb: "accent-amber",
+    shield: "accent-red",
+    academic: "accent-blue",
+    pencil: "accent-violet",
+  };
+  return map[iconName] || "accent-green";
+}
+
 export default function DashboardPage() {
   const { data: session } = useSession();
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
@@ -66,10 +83,10 @@ export default function DashboardPage() {
   return (
     <div className="min-h-dvh bg-surface-secondary">
       {/* Header */}
-      <header className="border-b border-border/60 bg-surface/70 backdrop-blur-xl px-4 py-3">
+      <header className="border-b border-border bg-surface/80 backdrop-blur-xl px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl gradient-brand flex items-center justify-center shadow-sm shadow-brand-200/30">
+            <div className="w-9 h-9 rounded-xl gradient-brand flex items-center justify-center">
               <SparklesIcon className="w-[18px] h-[18px] text-white" />
             </div>
             <div>
@@ -77,7 +94,7 @@ export default function DashboardPage() {
                 AI Coach
               </h1>
               <p className="text-[11px] text-text-tertiary leading-tight">
-                Leadership coaching for middle managers
+                Leadership coaching for managers
               </p>
             </div>
           </Link>
@@ -90,16 +107,14 @@ export default function DashboardPage() {
         {/* Page title + CTA */}
         <div className="flex items-center justify-between mb-8 animate-fade-up">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-text-primary">
+            <div className="text-sm-caps text-text-tertiary mb-1">Dashboard</div>
+            <h2 className="text-2xl font-bold text-text-primary" style={{ letterSpacing: "-0.02em" }}>
               Your Sessions
             </h2>
-            <p className="text-sm text-text-secondary mt-1">
-              Review past coaching sessions and prep sheets.
-            </p>
           </div>
           <Link
             href="/coach"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl gradient-brand text-white font-semibold text-sm shadow-md shadow-brand-300/20 hover:shadow-lg hover:shadow-brand-300/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg gradient-brand text-white font-semibold text-sm hover:opacity-90 active:scale-[0.98] transition-all duration-200"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -122,11 +137,8 @@ export default function DashboardPage() {
         {/* Empty state */}
         {!loading && sessions.length === 0 && (
           <div className="text-center py-20 animate-fade-up">
-            <div className="relative inline-flex items-center justify-center mb-6">
-              <div className="absolute inset-0 w-16 h-16 rounded-2xl bg-brand-200/30 blur-xl" />
-              <div className="relative w-14 h-14 rounded-2xl bg-brand-50 border border-brand-100 flex items-center justify-center">
-                <SparklesIcon className="w-7 h-7 text-brand-400" />
-              </div>
+            <div className="w-14 h-14 rounded-xl bg-brand-50 border border-brand-200 flex items-center justify-center mx-auto mb-4">
+              <SparklesIcon className="w-7 h-7 text-brand-400" />
             </div>
             <h3 className="text-lg font-semibold text-text-primary mb-2">
               No sessions yet
@@ -137,7 +149,7 @@ export default function DashboardPage() {
             </p>
             <Link
               href="/coach"
-              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl gradient-brand text-white font-semibold text-sm shadow-lg shadow-brand-300/30 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
+              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-lg gradient-brand text-white font-semibold text-sm hover:opacity-90 active:scale-[0.98] transition-all duration-200"
             >
               <span>Start Your First Session</span>
               <ArrowRightIcon className="w-4 h-4" />
@@ -147,7 +159,7 @@ export default function DashboardPage() {
 
         {/* Sessions list */}
         {!loading && sessions.length > 0 && (
-          <div className="space-y-3 animate-fade-up" style={{ animationDelay: "0.1s" }}>
+          <div className="border border-border rounded-xl bg-surface overflow-hidden animate-fade-up" style={{ animationDelay: "0.1s" }}>
             {sessions.map((s, i) => {
               const ctx = s.context as Record<string, unknown> | null;
               const attendees = (ctx?.attendees as string) || "";
@@ -155,18 +167,19 @@ export default function DashboardPage() {
               const templateData = ctx?.template as Record<string, unknown> | null;
               const iconName = (templateData?.icon as string) || "";
               const IconComponent = iconName ? getIcon(iconName) : SparklesIcon;
+              const accentClass = iconName ? getAccentClass(iconName) : "accent-green";
 
               return (
                 <Link
                   key={s.id}
                   href={`/dashboard/${s.id}`}
-                  className={`group flex items-center gap-4 p-4 rounded-xl border border-border/80 bg-surface hover:border-brand-200 hover:shadow-md hover:shadow-brand-100/50 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 animate-fade-up-sm stagger-${Math.min(i + 1, 6)}`}
+                  className={`group flex items-center gap-4 p-5 border-b border-border last:border-b-0 hover:bg-brand-50/50 transition-colors duration-200 animate-fade-up-sm stagger-${Math.min(i + 1, 6)}`}
                 >
-                  <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-brand-50 border border-brand-100/80 group-hover:bg-brand-100 group-hover:border-brand-200 flex items-center justify-center transition-colors">
-                    <IconComponent className="w-5 h-5 text-brand-600" />
+                  <div className={`flex-shrink-0 w-12 h-12 rounded-xl ${accentClass} flex items-center justify-center`}>
+                    <IconComponent className="w-5 h-5 text-white relative z-10" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-text-primary group-hover:text-brand-700 transition-colors truncate">
+                    <p className="text-sm font-semibold text-text-primary group-hover:text-text-primary transition-colors truncate">
                       {s.templateTitle || "Coaching Session"}
                     </p>
                     <div className="flex items-center gap-1.5 mt-0.5 text-xs text-text-tertiary">
@@ -175,18 +188,18 @@ export default function DashboardPage() {
                           <span className="truncate max-w-[200px]">
                             with {attendees}
                           </span>
-                          <span className="text-border">·</span>
+                          <span>·</span>
                         </>
                       )}
                       <span>{dateTime || formatDate(s.createdAt)}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <span className="text-xs text-text-tertiary hidden sm:inline">
                       {getRelativeTime(s.createdAt)}
                     </span>
                     <svg
-                      className="w-4 h-4 text-text-tertiary group-hover:text-brand-500 transition-colors"
+                      className="w-4 h-4 text-text-tertiary group-hover:text-text-primary transition-colors"
                       fill="none"
                       viewBox="0 0 24 24"
                       strokeWidth={1.5}

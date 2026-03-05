@@ -38,18 +38,12 @@ function formatEventTime(isoString: string) {
   });
 }
 
-function formatDate(isoString: string) {
-  const date = new Date(isoString);
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+function formatDateISO(isoString: string) {
+  return new Date(isoString).toISOString().split("T")[0];
 }
 
 function formatTime(isoString: string) {
-  const date = new Date(isoString);
-  return date.toLocaleTimeString("en-US", {
+  return new Date(isoString).toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
   });
@@ -94,7 +88,7 @@ export default function StepCalendar({
     const calendarEvent: CalendarEvent = {
       id: event.id,
       title: event.title,
-      date: formatDate(event.start),
+      date: formatDateISO(event.start),
       time: formatTime(event.start),
       attendees: event.attendees,
     };
@@ -106,13 +100,12 @@ export default function StepCalendar({
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-6 sm:pt-14 sm:pb-8">
       <div className="text-center mb-10 animate-fade-up">
-        <div className="relative inline-flex items-center justify-center mb-6">
-          <div className="absolute inset-0 w-16 h-16 rounded-2xl bg-brand-200/40 blur-xl" />
-          <div className="relative w-14 h-14 rounded-2xl gradient-brand flex items-center justify-center shadow-lg shadow-brand-500/20">
-            <CalendarIcon className="w-7 h-7 text-white" />
+        <div className="inline-flex items-center justify-center mb-6">
+          <div className="w-14 h-14 rounded-xl accent-green flex items-center justify-center">
+            <CalendarIcon className="w-7 h-7 text-white relative z-10" />
           </div>
         </div>
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary mb-3">
+        <h2 className="text-2xl sm:text-3xl font-bold text-text-primary mb-3" style={{ letterSpacing: "-0.03em" }}>
           {hasEvents ? "Select a Meeting" : "Connect Your Calendar"}
         </h2>
         <p className="text-text-secondary text-sm sm:text-base leading-relaxed max-w-lg mx-auto">
@@ -123,7 +116,7 @@ export default function StepCalendar({
       </div>
 
       <div
-        className="max-w-md mx-auto space-y-3 animate-fade-up"
+        className="max-w-md mx-auto space-y-2 animate-fade-up"
         style={{ animationDelay: "0.1s" }}
       >
         {/* Loading state */}
@@ -139,7 +132,7 @@ export default function StepCalendar({
 
         {/* Events list */}
         {!loading && hasEvents && (
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {events.map((event, i) => {
               const isSelected = selectedId === event.id;
               return (
@@ -147,15 +140,14 @@ export default function StepCalendar({
                   key={event.id}
                   onClick={() => handleSelectEvent(event)}
                   className={`
-                    w-full flex items-start gap-3.5 p-4 rounded-xl border text-left
-                    transition-all duration-200 ease-out
+                    w-full flex items-start gap-3.5 p-4 rounded-lg border text-left
+                    transition-all duration-200 ease-out relative
                     animate-fade-up-sm stagger-${Math.min(i + 1, 6)}
                     ${
                       isSelected
-                        ? "border-brand-400 bg-brand-50 shadow-md shadow-brand-100/50"
-                        : "border-border/80 bg-surface hover:border-brand-200 hover:shadow-md hover:shadow-brand-100/50 hover:-translate-y-0.5"
+                        ? "border-brand-700 bg-brand-50"
+                        : "border-border bg-surface hover:border-brand-300 hover:bg-brand-50"
                     }
-                    active:translate-y-0 active:shadow-sm
                   `}
                 >
                   {/* Selection indicator */}
@@ -180,19 +172,19 @@ export default function StepCalendar({
                   <div
                     className={`flex-shrink-0 w-10 h-10 rounded-xl border flex items-center justify-center transition-colors ${
                       isSelected
-                        ? "bg-brand-100 border-brand-200"
-                        : "bg-brand-50 border-brand-100/80"
+                        ? "bg-brand-100 border-brand-300"
+                        : "bg-brand-50 border-brand-200"
                     }`}
                   >
                     <CalendarIcon
-                      className={`w-5 h-5 ${isSelected ? "text-brand-700" : "text-brand-600"}`}
+                      className={`w-5 h-5 ${isSelected ? "text-brand-700" : "text-brand-500"}`}
                     />
                   </div>
 
                   <div className="min-w-0 flex-1 relative">
                     <p
                       className={`text-sm font-semibold truncate pr-6 ${
-                        isSelected ? "text-brand-700" : "text-text-primary"
+                        isSelected ? "text-text-primary" : "text-text-primary"
                       }`}
                     >
                       {event.title}
@@ -216,7 +208,7 @@ export default function StepCalendar({
 
         {/* No events / error state */}
         {!loading && !hasEvents && (
-          <div className="text-center py-6 px-4 rounded-2xl border border-dashed border-border bg-surface/50">
+          <div className="text-center py-6 px-4 rounded-xl border border-dashed border-border bg-surface/50">
             <CalendarIcon className="w-8 h-8 text-text-tertiary mx-auto mb-3 opacity-50" />
             <p className="text-sm text-text-secondary mb-1">
               {error === "calendar_api_error"
@@ -234,15 +226,15 @@ export default function StepCalendar({
         {/* Skip CTA */}
         <button
           onClick={onSkip}
-          className="w-full flex items-center justify-center gap-2 p-4 rounded-2xl border border-brand-200 bg-brand-50 hover:bg-brand-100 transition-colors duration-200 group"
+          className="w-full flex items-center justify-center gap-2 p-4 rounded-lg border border-brand-200 bg-brand-50 hover:bg-brand-100 transition-colors duration-200 group"
         >
-          <span className="text-sm font-semibold text-brand-700 group-hover:text-brand-800">
+          <span className="text-sm font-semibold text-text-primary group-hover:text-text-primary">
             {hasEvents
               ? "Skip — I\u2019ll enter details manually"
               : "Continue — I\u2019ll enter details manually"}
           </span>
           <svg
-            className="w-4 h-4 text-brand-500 group-hover:translate-x-0.5 transition-transform"
+            className="w-4 h-4 text-brand-400 group-hover:translate-x-0.5 transition-transform"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={2}

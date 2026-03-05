@@ -17,6 +17,8 @@ export function buildDebriefPrompt(context: WizardContext): string {
 
 Based on the rehearsal conversation that was just completed (provided in the messages), generate a comprehensive preparation document. The manager will use this as their reference going into the real conversation.
 
+**IMPORTANT**: You MUST always generate the full prep sheet, even if the rehearsal was very brief or minimal. When the rehearsal lacks depth, use the conversation type, attendees, and context provided above to generate best-practice guidance specific to this type of conversation. Draw on established management and coaching frameworks relevant to "${templateName}" conversations. Never refuse to generate the document or ask the user for more information — always produce actionable, useful content.
+
 Structure the document with these EXACT sections:
 
 ## Conversation Prep Sheet

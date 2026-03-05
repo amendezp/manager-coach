@@ -138,8 +138,8 @@ export default function StepDebrief({
       {/* Header */}
       <div className="flex items-center justify-between mb-6 animate-fade-up">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center shadow-md shadow-violet-200/30">
-            <DocumentIcon className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-xl accent-amber flex items-center justify-center">
+            <DocumentIcon className="w-5 h-5 text-white relative z-10" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-text-primary">
@@ -156,14 +156,14 @@ export default function StepDebrief({
           <div className="flex items-center gap-2 animate-fade-in">
             <button
               onClick={handleCopy}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-text-secondary hover:text-text-primary bg-surface-tertiary/50 hover:bg-surface-tertiary border border-transparent hover:border-border/50 transition-all"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-text-secondary hover:text-text-primary bg-brand-50 hover:bg-brand-100 border border-brand-200 transition-all"
             >
               <ClipboardDocIcon className="w-3.5 h-3.5" />
               {copied ? "Copied!" : "Copy"}
             </button>
             <button
               onClick={handlePrint}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-text-secondary hover:text-text-primary bg-surface-tertiary/50 hover:bg-surface-tertiary border border-transparent hover:border-border/50 transition-all"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-text-secondary hover:text-text-primary bg-brand-50 hover:bg-brand-100 border border-brand-200 transition-all"
             >
               <PrinterIcon className="w-3.5 h-3.5" />
               Print
@@ -174,7 +174,7 @@ export default function StepDebrief({
 
       {/* Content card */}
       <div
-        className="debrief-artifact rounded-2xl border border-border/80 bg-surface shadow-sm p-6 sm:p-8 animate-fade-up print:shadow-none print:border-none"
+        className="debrief-artifact rounded-xl border border-border bg-surface p-6 sm:p-8 animate-fade-up print:shadow-none print:border-none"
         style={{ animationDelay: "0.1s" }}
       >
         {isGenerating && !debriefContent && (
@@ -225,7 +225,7 @@ export default function StepDebrief({
           <div className="flex items-center justify-center gap-3">
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border bg-surface text-sm font-semibold text-text-primary hover:bg-surface-tertiary hover:border-brand-200 transition-all duration-200"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-border bg-surface text-sm font-semibold text-text-primary hover:bg-brand-50 transition-all duration-200"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
@@ -234,7 +234,7 @@ export default function StepDebrief({
             </Link>
             <Link
               href="/coach"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl gradient-brand text-white text-sm font-semibold shadow-sm hover:shadow-md transition-all duration-200"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg gradient-brand text-white text-sm font-semibold hover:opacity-90 transition-all duration-200"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />

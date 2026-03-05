@@ -20,13 +20,13 @@ export default function WizardNav({
   showSkip?: boolean;
 }) {
   return (
-    <div className="flex-shrink-0 border-t border-border/60 bg-surface/80 backdrop-blur-lg px-4 py-3">
+    <div className="flex-shrink-0 border-t border-border bg-surface/80 backdrop-blur-lg px-4 py-3">
       <div className="max-w-3xl mx-auto flex items-center justify-between">
-        {/* Back */}
+        {/* Back — underlined text link */}
         {currentStep > 1 ? (
           <button
             onClick={onBack}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-tertiary transition-all duration-200 active:scale-95"
+            className="flex items-center gap-1.5 text-sm font-medium text-text-secondary hover:text-text-primary underline underline-offset-4 decoration-brand-200 hover:decoration-brand-400 transition-all duration-200"
           >
             <ArrowLeftIcon className="w-4 h-4" />
             <span>Back</span>
@@ -40,7 +40,7 @@ export default function WizardNav({
           {showSkip && onSkip && (
             <button
               onClick={onSkip}
-              className="px-4 py-2 rounded-xl text-sm font-medium text-text-tertiary hover:text-text-secondary hover:bg-surface-tertiary transition-all duration-200"
+              className="px-4 py-2 rounded-lg text-sm font-medium text-text-tertiary hover:text-text-secondary hover:bg-brand-50 transition-all duration-200"
             >
               Skip
             </button>
@@ -49,11 +49,11 @@ export default function WizardNav({
             onClick={onNext}
             disabled={!canAdvance}
             className={`
-              flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95
+              flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 active:scale-[0.98]
               ${
                 canAdvance
-                  ? "gradient-brand text-white shadow-sm shadow-brand-200/30 hover:shadow-md hover:shadow-brand-200/40"
-                  : "bg-surface-tertiary text-text-tertiary cursor-not-allowed"
+                  ? "gradient-brand text-white hover:opacity-90"
+                  : "bg-brand-100 text-brand-300 cursor-not-allowed"
               }
             `}
           >
