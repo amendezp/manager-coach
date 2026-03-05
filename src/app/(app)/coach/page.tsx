@@ -192,7 +192,7 @@ export default function CoachPage() {
   const showNav = (currentStep >= 2 && currentStep <= 4) || (currentStep === 5 && feedbackRequested);
 
   return (
-    <div className="h-dvh flex flex-col bg-surface-secondary">
+    <div className="h-full flex flex-col bg-surface-secondary">
       <WizardHeader currentStep={currentStep} onStepClick={handleStepClick} />
 
       <div className={`flex-1 flex flex-col ${currentStep === 5 ? "overflow-hidden" : "overflow-y-auto"}`}>

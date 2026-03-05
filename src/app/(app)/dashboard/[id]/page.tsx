@@ -4,11 +4,9 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
-  SparklesIcon,
   DocumentIcon,
   ClipboardDocIcon,
   PrinterIcon,
-  ArrowRightIcon,
 } from "@/components/Icons";
 
 interface SessionDetail {
@@ -98,7 +96,7 @@ export default function SessionDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-dvh bg-surface-secondary flex items-center justify-center">
+      <div className="min-h-full bg-surface-secondary flex items-center justify-center">
         <div className="thinking-dots flex items-center gap-0.5">
           <span />
           <span />
@@ -110,7 +108,7 @@ export default function SessionDetailPage() {
 
   if (notFound || !session) {
     return (
-      <div className="min-h-dvh bg-surface-secondary flex flex-col items-center justify-center px-4">
+      <div className="min-h-full bg-surface-secondary flex flex-col items-center justify-center px-4">
         <h2 className="text-xl font-bold text-text-primary mb-2">
           Session not found
         </h2>
@@ -118,10 +116,10 @@ export default function SessionDetailPage() {
           This session may have been deleted or doesn&apos;t exist.
         </p>
         <Link
-          href="/dashboard"
+          href="/coach"
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl gradient-brand text-white font-semibold text-sm"
         >
-          Back to Dashboard
+          New Session
         </Link>
       </div>
     );
@@ -137,42 +135,13 @@ export default function SessionDetailPage() {
   });
 
   return (
-    <div className="min-h-dvh bg-surface-secondary">
-      {/* Header */}
-      <header className="border-b border-border/60 bg-surface/70 backdrop-blur-xl px-4 py-3 print:hidden">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl gradient-brand flex items-center justify-center shadow-sm shadow-brand-200/30">
-              <SparklesIcon className="w-[18px] h-[18px] text-white" />
-            </div>
-            <div>
-              <h1 className="text-sm font-bold text-text-primary tracking-tight">
-                AI Coach
-              </h1>
-              <p className="text-[11px] text-text-tertiary leading-tight">
-                Leadership coaching for middle managers
-              </p>
-            </div>
-          </Link>
-
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-tertiary transition-all"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-            </svg>
-            Dashboard
-          </Link>
-        </div>
-      </header>
-
+    <div className="min-h-full bg-surface-secondary overflow-y-auto">
       <div className="max-w-3xl mx-auto px-4 pt-6 pb-12 sm:pt-8">
-        {/* Debrief header */}
+        {/* Session header */}
         <div className="flex items-center justify-between mb-6 animate-fade-up">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center shadow-md shadow-violet-200/30">
-              <DocumentIcon className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl accent-violet flex items-center justify-center">
+              <DocumentIcon className="w-5 h-5 text-white relative z-10" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-text-primary">
@@ -187,14 +156,14 @@ export default function SessionDetailPage() {
           <div className="flex items-center gap-2 print:hidden">
             <button
               onClick={handleCopy}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-text-secondary hover:text-text-primary bg-surface-tertiary/50 hover:bg-surface-tertiary border border-transparent hover:border-border/50 transition-all"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-text-secondary hover:text-text-primary bg-brand-50 hover:bg-brand-100 border border-brand-200 transition-all"
             >
               <ClipboardDocIcon className="w-3.5 h-3.5" />
               {copied ? "Copied!" : "Copy"}
             </button>
             <button
               onClick={handlePrint}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-text-secondary hover:text-text-primary bg-surface-tertiary/50 hover:bg-surface-tertiary border border-transparent hover:border-border/50 transition-all"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-text-secondary hover:text-text-primary bg-brand-50 hover:bg-brand-100 border border-brand-200 transition-all"
             >
               <PrinterIcon className="w-3.5 h-3.5" />
               Print
@@ -219,26 +188,6 @@ export default function SessionDetailPage() {
               No debrief content available for this session.
             </p>
           )}
-        </div>
-
-        {/* Footer actions */}
-        <div
-          className="flex items-center justify-center gap-4 mt-8 animate-fade-in print:hidden"
-          style={{ animationDelay: "0.3s" }}
-        >
-          <Link
-            href="/dashboard"
-            className="text-sm text-text-secondary hover:text-text-primary transition-colors"
-          >
-            Back to Dashboard
-          </Link>
-          <Link
-            href="/coach"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl gradient-brand text-white font-semibold text-sm shadow-md shadow-brand-300/20 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
-          >
-            New Session
-            <ArrowRightIcon className="w-4 h-4" />
-          </Link>
         </div>
       </div>
     </div>

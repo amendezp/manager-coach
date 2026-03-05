@@ -222,16 +222,7 @@ export default function StepDebrief({
           <p className="text-xs text-text-tertiary mb-5">
             Good luck with your conversation! You&apos;ve got this.
           </p>
-          <div className="flex items-center justify-center gap-3">
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-border bg-surface text-sm font-semibold text-text-primary hover:bg-brand-50 transition-all duration-200"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-              </svg>
-              Back to Dashboard
-            </Link>
+          <div className="flex items-center justify-center">
             <Link
               href="/coach"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg gradient-brand text-white text-sm font-semibold hover:opacity-90 transition-all duration-200"

@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowLeftIcon, CheckIcon, SparklesIcon } from "../Icons";
+import { CheckIcon } from "../Icons";
 import type { WizardStep } from "@/lib/types";
 
 const STEPS: { step: WizardStep; label: string; shortLabel: string }[] = [
@@ -21,29 +20,8 @@ export default function WizardHeader({
   onStepClick?: (step: WizardStep) => void;
 }) {
   return (
-    <header className="flex-shrink-0 border-b border-border bg-surface/80 backdrop-blur-xl px-4 py-3 z-10">
+    <header className="flex-shrink-0 border-b border-border bg-surface/80 backdrop-blur-xl px-4 py-2.5 z-10">
       <div className="max-w-3xl mx-auto">
-        {/* Top row: back + title */}
-        <div className="flex items-center gap-3 mb-3">
-          <Link
-            href="/"
-            className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-brand-50 transition-colors"
-          >
-            <ArrowLeftIcon className="w-4 h-4 text-text-secondary" />
-          </Link>
-          <div className="w-8 h-8 rounded-lg gradient-brand flex items-center justify-center">
-            <SparklesIcon className="w-4 h-4 text-white" />
-          </div>
-          <div>
-            <h1 className="text-sm font-bold text-text-primary tracking-tight">
-              Conversation Coach
-            </h1>
-            <p className="text-[11px] text-text-tertiary leading-tight">
-              Step {currentStep} of 6
-            </p>
-          </div>
-        </div>
-
         {/* Step indicator */}
         <div className="flex items-center gap-1">
           {STEPS.map(({ step, label, shortLabel }, i) => {

@@ -356,7 +356,7 @@ body {
 /* ─── Print Styles ─── */
 @media print {
   body { background: white !important; }
-  header, .wizard-header, .wizard-nav, button, .no-print { display: none !important; }
+  aside, header, .wizard-header, .wizard-nav, button, .no-print { display: none !important; }
   .debrief-artifact {
     box-shadow: none !important;
     border: none !important;
@@ -371,6 +371,12 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--color-brand-200); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-brand-300); }
+
+/* ─── Sidebar scrollbar ─── */
+.sidebar-sessions::-webkit-scrollbar { width: 4px; }
+.sidebar-sessions::-webkit-scrollbar-track { background: transparent; }
+.sidebar-sessions::-webkit-scrollbar-thumb { background: var(--color-brand-200); border-radius: 2px; }
+.sidebar-sessions::-webkit-scrollbar-thumb:hover { background: var(--color-brand-300); }
 
 /* ─── Focus Visible ─── */
 :focus-visible {

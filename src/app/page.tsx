@@ -126,7 +126,7 @@ export default function LandingPage() {
             <UserMenu user={session.user} />
           ) : (
             <button
-              onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+              onClick={() => signIn("google", { callbackUrl: "/coach" })}
               className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-surface text-sm font-medium text-text-primary hover:bg-brand-50 transition-all duration-200"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -172,10 +172,10 @@ export default function LandingPage() {
                     <ArrowRightIcon className="w-4 h-4" />
                   </Link>
                   <Link
-                    href="/dashboard"
+                    href="/coach"
                     className="inline-flex items-center gap-2 px-5 py-3 rounded-lg border border-border bg-surface text-text-primary font-semibold text-sm hover:bg-brand-50 transition-all duration-200"
                   >
-                    View Dashboard
+                    View Sessions
                   </Link>
                 </div>
               </div>
@@ -283,7 +283,7 @@ export default function LandingPage() {
                 get real-time feedback, and walk in with a personalized prep sheet.
               </p>
               <button
-                onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+                onClick={() => signIn("google", { callbackUrl: "/coach" })}
                 className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-lg gradient-brand text-white font-semibold text-base hover:opacity-90 active:scale-[0.98] transition-all duration-200"
               >
                 <span>Get Started</span>
