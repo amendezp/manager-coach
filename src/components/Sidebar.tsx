@@ -97,11 +97,11 @@ export default function Sidebar({ user, isOpen, onClose }: SidebarProps) {
         <button
           onClick={handleNewSession}
           className={`
-            w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all
+            w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200
             ${
               isOnCoach
                 ? "bg-brand-50 border border-brand-200 text-text-primary"
-                : "gradient-brand text-white hover:opacity-90"
+                : "gradient-new-session text-white shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
             }
           `}
         >

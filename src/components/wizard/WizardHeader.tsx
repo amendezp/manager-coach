@@ -5,11 +5,10 @@ import type { WizardStep } from "@/lib/types";
 
 const STEPS: { step: WizardStep; label: string; shortLabel: string }[] = [
   { step: 1, label: "Calendar", shortLabel: "Cal" },
-  { step: 2, label: "Template", shortLabel: "Type" },
-  { step: 3, label: "Context", shortLabel: "Info" },
-  { step: 4, label: "Learn", shortLabel: "Learn" },
-  { step: 5, label: "Rehearse", shortLabel: "Prep" },
-  { step: 6, label: "Debrief", shortLabel: "Doc" },
+  { step: 2, label: "Prepare", shortLabel: "Prep" },
+  { step: 3, label: "Learn", shortLabel: "Learn" },
+  { step: 4, label: "Rehearse", shortLabel: "Play" },
+  { step: 5, label: "Debrief", shortLabel: "Doc" },
 ];
 
 export default function WizardHeader({

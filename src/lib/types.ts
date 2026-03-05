@@ -1,6 +1,6 @@
 export type FlowType = "copilot" | "simulator" | "reflect" | "wizard" | "debrief";
 
-export type WizardStep = 1 | 2 | 3 | 4 | 5 | 6;
+export type WizardStep = 1 | 2 | 3 | 4 | 5;
 
 export interface Message {
   id: string;

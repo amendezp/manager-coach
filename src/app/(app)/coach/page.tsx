@@ -5,8 +5,7 @@ import type { WizardStep, WizardContext, CoachableTemplate, CalendarEvent, Messa
 import WizardHeader from "@/components/wizard/WizardHeader";
 import WizardNav from "@/components/wizard/WizardNav";
 import StepCalendar from "@/components/wizard/StepCalendar";
-import StepTemplate from "@/components/wizard/StepTemplate";
-import StepContext from "@/components/wizard/StepContext";
+import StepTemplateContext from "@/components/wizard/StepTemplateContext";
 import StepLearning from "@/components/wizard/StepLearning";
 import StepRehearsal from "@/components/wizard/StepRehearsal";
 import StepDebrief from "@/components/wizard/StepDebrief";
@@ -32,7 +31,7 @@ export default function CoachPage() {
   const goToStep = useCallback(
     (step: WizardStep) => {
       // If leaving rehearsal and chat exists, warn
-      if (currentStep === 5 && chatMessages.length > 0 && step !== 6) {
+      if (currentStep === 4 && chatMessages.length > 0 && step !== 5) {
         if (
           !window.confirm(
             "Going back will reset your rehearsal conversation. Continue?"
@@ -49,7 +48,7 @@ export default function CoachPage() {
   );
 
   const goNext = useCallback(() => {
-    const next = Math.min(currentStep + 1, 6) as WizardStep;
+    const next = Math.min(currentStep + 1, 5) as WizardStep;
     goToStep(next);
   }, [currentStep, goToStep]);
 
@@ -58,9 +57,9 @@ export default function CoachPage() {
     goToStep(prev);
   }, [currentStep, goToStep]);
 
-  // Skip rehearsal — jump from step 4 directly to step 6
+  // Skip rehearsal — jump from step 3 (Learn) directly to step 5 (Debrief)
   const skipToDebrief = useCallback(() => {
-    goToStep(6);
+    goToStep(5);
   }, [goToStep]);
 
   // Header step click — navigate to any completed step
@@ -90,7 +89,7 @@ export default function CoachPage() {
         dateTime: event.date,
         interactionNature: event.title,
       }));
-      // Auto-advance to template step after short delay for visual feedback
+      // Auto-advance to template+context step after short delay for visual feedback
       setTimeout(() => {
         setCurrentStep(2 as WizardStep);
       }, 300);
@@ -152,18 +151,16 @@ export default function CoachPage() {
       case 1:
         return true; // calendar is optional
       case 2:
-        // Custom templates need a description to advance
+        // Need a template selected (custom needs a description)
         if (context.template?.id === "custom") {
           return context.template.description.trim() !== "";
         }
         return context.template !== null;
       case 3:
-        return context.attendees.trim() !== "";
-      case 4:
         return true; // learning is read-only
-      case 5:
+      case 4:
         return feedbackRequested;
-      case 6:
+      case 5:
         return false; // last step
       default:
         return false;
@@ -178,24 +175,22 @@ export default function CoachPage() {
       case 2:
         return "Next";
       case 3:
-        return "Next";
-      case 4:
         return "Start Rehearsal";
-      case 5:
+      case 4:
         return "View Prep Sheet";
       default:
         return "Next";
     }
   })();
 
-  // Nav visible for steps 2-4 only (step 1 has inline CTAs, step 5 has chat, step 6 has inline actions)
-  const showNav = (currentStep >= 2 && currentStep <= 4) || (currentStep === 5 && feedbackRequested);
+  // Nav visible for steps 2-3 only (step 1 has inline CTAs, step 4 has chat, step 5 has inline actions)
+  const showNav = (currentStep >= 2 && currentStep <= 3) || (currentStep === 4 && feedbackRequested);
 
   return (
     <div className="h-full flex flex-col bg-surface-secondary">
       <WizardHeader currentStep={currentStep} onStepClick={handleStepClick} />
 
-      <div className={`flex-1 flex flex-col ${currentStep === 5 ? "overflow-hidden" : "overflow-y-auto"}`}>
+      <div className={`flex-1 flex flex-col ${currentStep === 4 ? "overflow-hidden" : "overflow-y-auto"}`}>
         {currentStep === 1 && (
           <StepCalendar
             onSkip={goNext}
@@ -204,21 +199,18 @@ export default function CoachPage() {
         )}
 
         {currentStep === 2 && (
-          <StepTemplate
-            selected={context.template}
-            onSelect={selectTemplate}
+          <StepTemplateContext
+            context={context}
+            onContextChange={updateContext}
+            onTemplateSelect={selectTemplate}
           />
         )}
 
-        {currentStep === 3 && (
-          <StepContext context={context} onChange={updateContext} />
-        )}
-
-        {currentStep === 4 && context.template && (
+        {currentStep === 3 && context.template && (
           <StepLearning template={context.template} />
         )}
 
-        {currentStep === 5 && (
+        {currentStep === 4 && (
           <StepRehearsal
             context={context}
             messages={chatMessages}
@@ -228,7 +220,7 @@ export default function CoachPage() {
           />
         )}
 
-        {currentStep === 6 && (
+        {currentStep === 5 && (
           <StepDebrief
             context={context}
             chatMessages={chatMessages}
@@ -248,7 +240,7 @@ export default function CoachPage() {
           onSkip={currentStep === 1 ? goNext : undefined}
           showSkip={currentStep === 1}
           nextLabel={nextLabel}
-          showSkipRehearsal={currentStep === 4}
+          showSkipRehearsal={currentStep === 3}
           onSkipRehearsal={skipToDebrief}
         />
       )}
