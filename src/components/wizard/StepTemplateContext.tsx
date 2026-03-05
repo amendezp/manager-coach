@@ -157,7 +157,7 @@ export default function StepTemplateContext({
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 pt-8 pb-6 sm:pt-10 sm:pb-8">
+    <div className="max-w-5xl mx-auto px-4 pt-8 pb-6 sm:pt-10 sm:pb-8">
       {/* Header */}
       <div className="text-center mb-6 animate-fade-up">
         <h2
@@ -171,32 +171,103 @@ export default function StepTemplateContext({
         </p>
       </div>
 
-      {/* Template grid — always-colored icons */}
-      <div
-        className="grid grid-cols-1 sm:grid-cols-2 gap-2 animate-fade-up"
-        style={{ animationDelay: "0.1s" }}
-      >
-        {COACHABLE_TEMPLATES.map((t, i) => {
-          const Icon = getIcon(t.icon);
-          const isSelected = !customMode && template?.id === t.id;
+      {/* Two-column layout: templates (left) + details (right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+        {/* ── Left column: Templates ── */}
+        <div>
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 gap-2 animate-fade-up"
+            style={{ animationDelay: "0.1s" }}
+          >
+            {COACHABLE_TEMPLATES.map((t, i) => {
+              const Icon = getIcon(t.icon);
+              const isSelected = !customMode && template?.id === t.id;
 
-          return (
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => handleTemplateSelect(t)}
+                  className={`
+                    group relative flex items-start gap-3.5 p-3.5 rounded-lg
+                    border transition-all duration-200 ease-out text-left
+                    animate-fade-up-sm stagger-${Math.min(i + 1, 6)}
+                    ${
+                      isSelected
+                        ? "border-brand-700 bg-brand-50 shadow-sm"
+                        : "border-border bg-surface hover:border-brand-300 hover:bg-brand-50"
+                    }
+                  `}
+                >
+                  {/* Selection checkmark */}
+                  {isSelected && (
+                    <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full gradient-brand flex items-center justify-center">
+                      <svg
+                        className="w-3 h-3 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={3}
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="m4.5 12.75 6 6 9-13.5"
+                        />
+                      </svg>
+                    </div>
+                  )}
+
+                  {/* Always-colored icon */}
+                  <div
+                    className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${t.color} ${
+                      isSelected
+                        ? "shadow-md ring-2 ring-offset-1 ring-brand-300 scale-105"
+                        : "opacity-70 group-hover:opacity-90 group-hover:shadow-sm"
+                    }`}
+                  >
+                    <Icon className="w-5 h-5 text-white relative z-10" />
+                  </div>
+
+                  <div className="min-w-0 pt-0.5 pr-6">
+                    <p className="text-sm font-semibold text-text-primary">
+                      {t.title}
+                    </p>
+                    <p className="text-xs text-text-tertiary mt-0.5 leading-relaxed">
+                      {t.description}
+                    </p>
+                    {t.learningConcepts.some((c) => c.framework) && (
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {t.learningConcepts
+                          .filter((c) => c.framework)
+                          .map((c) => (
+                            <span
+                              key={c.framework}
+                              className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-brand-50 text-brand-600 border border-brand-200"
+                            >
+                              {c.framework}
+                            </span>
+                          ))}
+                      </div>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+
+            {/* Custom conversation option */}
             <button
-              key={t.id}
-              onClick={() => handleTemplateSelect(t)}
+              onClick={handleCustomToggle}
               className={`
                 group relative flex items-start gap-3.5 p-3.5 rounded-lg
-                border transition-all duration-200 ease-out text-left
-                animate-fade-up-sm stagger-${Math.min(i + 1, 6)}
+                border transition-all duration-200 ease-out text-left sm:col-span-2
                 ${
-                  isSelected
+                  customMode
                     ? "border-brand-700 bg-brand-50 shadow-sm"
-                    : "border-border bg-surface hover:border-brand-300 hover:bg-brand-50"
+                    : "border-dashed border-border bg-surface hover:border-brand-300 hover:bg-brand-50"
                 }
               `}
             >
-              {/* Selection checkmark */}
-              {isSelected && (
+              {customMode && (
                 <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full gradient-brand flex items-center justify-center">
                   <svg
                     className="w-3 h-3 text-white"
@@ -214,221 +285,163 @@ export default function StepTemplateContext({
                 </div>
               )}
 
-              {/* Always-colored icon */}
               <div
-                className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${t.color} ${
-                  isSelected
+                className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 accent-violet ${
+                  customMode
                     ? "shadow-md ring-2 ring-offset-1 ring-brand-300 scale-105"
                     : "opacity-70 group-hover:opacity-90 group-hover:shadow-sm"
                 }`}
               >
-                <Icon className="w-5 h-5 text-white relative z-10" />
+                <PencilIcon className="w-5 h-5 text-white relative z-10" />
               </div>
-
               <div className="min-w-0 pt-0.5 pr-6">
                 <p className="text-sm font-semibold text-text-primary">
-                  {t.title}
+                  Something else
                 </p>
                 <p className="text-xs text-text-tertiary mt-0.5 leading-relaxed">
-                  {t.description}
+                  Describe any type of management conversation you&apos;re
+                  preparing for
                 </p>
-                {t.learningConcepts.some((c) => c.framework) && (
-                  <div className="flex flex-wrap gap-1 mt-1.5">
-                    {t.learningConcepts
-                      .filter((c) => c.framework)
-                      .map((c) => (
-                        <span
-                          key={c.framework}
-                          className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-brand-50 text-brand-600 border border-brand-200"
-                        >
-                          {c.framework}
-                        </span>
-                      ))}
-                  </div>
-                )}
               </div>
             </button>
-          );
-        })}
+          </div>
 
-        {/* Custom conversation option */}
-        <button
-          onClick={handleCustomToggle}
-          className={`
-            group relative flex items-start gap-3.5 p-3.5 rounded-lg
-            border transition-all duration-200 ease-out text-left sm:col-span-2
-            ${
-              customMode
-                ? "border-brand-700 bg-brand-50 shadow-sm"
-                : "border-dashed border-border bg-surface hover:border-brand-300 hover:bg-brand-50"
-            }
-          `}
-        >
+          {/* Custom description input */}
           {customMode && (
-            <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full gradient-brand flex items-center justify-center">
-              <svg
-                className="w-3 h-3 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={3}
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m4.5 12.75 6 6 9-13.5"
-                />
-              </svg>
+            <div className="mt-3 animate-fade-up-sm">
+              <textarea
+                value={customDescription}
+                onChange={(e) => handleCustomDescriptionChange(e.target.value)}
+                placeholder="e.g., Having a career growth conversation with a senior engineer who wants to move into management..."
+                rows={3}
+                autoFocus
+                className="w-full px-4 py-3 rounded-lg border border-brand-300 bg-surface text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-brand-700 transition-all resize-none"
+              />
             </div>
           )}
 
-          <div
-            className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 accent-violet ${
-              customMode
-                ? "shadow-md ring-2 ring-offset-1 ring-brand-300 scale-105"
-                : "opacity-70 group-hover:opacity-90 group-hover:shadow-sm"
-            }`}
-          >
-            <PencilIcon className="w-5 h-5 text-white relative z-10" />
-          </div>
-          <div className="min-w-0 pt-0.5 pr-6">
-            <p className="text-sm font-semibold text-text-primary">
-              Something else
-            </p>
-            <p className="text-xs text-text-tertiary mt-0.5 leading-relaxed">
-              Describe any type of management conversation you&apos;re preparing
-              for
-            </p>
-          </div>
-        </button>
-      </div>
-
-      {/* Custom description input */}
-      {customMode && (
-        <div className="mt-3 animate-fade-up-sm">
-          <textarea
-            value={customDescription}
-            onChange={(e) => handleCustomDescriptionChange(e.target.value)}
-            placeholder="e.g., Having a career growth conversation with a senior engineer who wants to move into management..."
-            rows={3}
-            autoFocus
-            className="w-full px-4 py-3 rounded-lg border border-brand-300 bg-surface text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-brand-700 transition-all resize-none"
-          />
+          {/* Framework primer — expandable learning moment */}
+          {hasTemplate && !customMode && template.learningConcepts.length > 0 && (
+            <FrameworkPrimer concepts={template.learningConcepts} />
+          )}
         </div>
-      )}
 
-      {/* Framework primer — expandable learning moment */}
-      {hasTemplate && !customMode && template.learningConcepts.length > 0 && (
-        <FrameworkPrimer concepts={template.learningConcepts} />
-      )}
-
-      {/* Context fields — appear when template is selected */}
-      {(hasTemplate || customMode) && (
-        <div className="mt-6 pt-6 border-t border-border space-y-4 animate-fade-up-sm">
-          <p className="text-sm font-semibold text-text-primary">
-            Add details{" "}
-            <span className="text-text-tertiary font-normal">
-              (optional &mdash; improves your prep)
-            </span>
-          </p>
-
-          {/* Two-column row: Attendees + Date */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm-caps text-text-tertiary mb-1.5">
-                Who is this with?
-              </label>
-              <input
-                type="text"
-                value={context.attendees}
-                onChange={(e) =>
-                  onContextChange({ attendees: e.target.value })
-                }
-                placeholder="e.g., Sarah Chen — Senior Engineer"
-                className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-brand-700 transition-all"
-              />
-            </div>
-            <div>
-              <label className="block text-sm-caps text-text-tertiary mb-1.5">
-                When?
-              </label>
-              <input
-                type="date"
-                value={context.dateTime}
-                onChange={(e) =>
-                  onContextChange({ dateTime: e.target.value })
-                }
-                className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface text-sm text-text-primary focus:outline-none focus:border-brand-700 transition-all"
-              />
-            </div>
-          </div>
-
-          {/* Desired outcome */}
-          <div>
-            <label className="block text-sm-caps text-text-tertiary mb-1.5">
-              Desired outcome
-            </label>
-            <input
-              type="text"
-              value={context.desiredOutcome}
-              onChange={(e) =>
-                onContextChange({ desiredOutcome: e.target.value })
-              }
-              placeholder="e.g., Agree on a clear improvement plan..."
-              className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-brand-700 transition-all"
-            />
-          </div>
-
-          {/* Additional context with mic */}
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-sm-caps text-text-tertiary">
-                Additional context
-              </label>
-              {isListening && (
-                <span className="flex items-center gap-1.5 text-[11px] text-red-500 font-medium">
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500" />
-                  </span>
-                  Recording
+        {/* ── Right column: Context details ── */}
+        <div className="lg:sticky lg:top-8">
+          {(hasTemplate || customMode) ? (
+            <div className="space-y-4 animate-fade-up-sm rounded-xl border border-border bg-surface p-5">
+              <p className="text-sm font-semibold text-text-primary">
+                Add details{" "}
+                <span className="text-text-tertiary font-normal">
+                  (optional &mdash; improves your prep)
                 </span>
-              )}
-            </div>
-            <div
-              className={`relative rounded-lg border transition-all ${
-                isListening ? "border-red-300" : "border-border"
-              }`}
-            >
-              <textarea
-                value={displayValue}
-                onChange={(e) => {
-                  if (!isListening || !interimTranscript) {
-                    onContextChange({ additionalContext: e.target.value });
+              </p>
+
+              {/* Attendees */}
+              <div>
+                <label className="block text-sm-caps text-text-tertiary mb-1.5">
+                  Who is this with?
+                </label>
+                <input
+                  type="text"
+                  value={context.attendees}
+                  onChange={(e) =>
+                    onContextChange({ attendees: e.target.value })
                   }
-                }}
-                placeholder={
-                  isListening
-                    ? "Listening \u2014 speak naturally..."
-                    : "e.g., This person has been defensive in past feedback conversations..."
-                }
-                rows={4}
-                className={`w-full px-4 py-2.5 rounded-lg bg-surface text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none transition-all resize-none ${
-                  isListening && interimTranscript ? "text-text-secondary" : ""
-                }`}
-              />
-              <div className="absolute bottom-2 right-2">
-                <MicButton
-                  isListening={isListening}
-                  isSupported={isSupported}
-                  onClick={toggleListening}
-                  variant="compact"
+                  placeholder="e.g., Sarah Chen — Senior Engineer"
+                  className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-brand-700 transition-all"
                 />
               </div>
+
+              {/* Date */}
+              <div>
+                <label className="block text-sm-caps text-text-tertiary mb-1.5">
+                  When?
+                </label>
+                <input
+                  type="date"
+                  value={context.dateTime}
+                  onChange={(e) =>
+                    onContextChange({ dateTime: e.target.value })
+                  }
+                  className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface text-sm text-text-primary focus:outline-none focus:border-brand-700 transition-all"
+                />
+              </div>
+
+              {/* Desired outcome */}
+              <div>
+                <label className="block text-sm-caps text-text-tertiary mb-1.5">
+                  Desired outcome
+                </label>
+                <input
+                  type="text"
+                  value={context.desiredOutcome}
+                  onChange={(e) =>
+                    onContextChange({ desiredOutcome: e.target.value })
+                  }
+                  placeholder="e.g., Agree on a clear improvement plan..."
+                  className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-brand-700 transition-all"
+                />
+              </div>
+
+              {/* Additional context with mic */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-sm-caps text-text-tertiary">
+                    Additional context
+                  </label>
+                  {isListening && (
+                    <span className="flex items-center gap-1.5 text-[11px] text-red-500 font-medium">
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500" />
+                      </span>
+                      Recording
+                    </span>
+                  )}
+                </div>
+                <div
+                  className={`relative rounded-lg border transition-all ${
+                    isListening ? "border-red-300" : "border-border"
+                  }`}
+                >
+                  <textarea
+                    value={displayValue}
+                    onChange={(e) => {
+                      if (!isListening || !interimTranscript) {
+                        onContextChange({ additionalContext: e.target.value });
+                      }
+                    }}
+                    placeholder={
+                      isListening
+                        ? "Listening \u2014 speak naturally..."
+                        : "e.g., This person has been defensive in past feedback conversations..."
+                    }
+                    rows={4}
+                    className={`w-full px-4 py-2.5 rounded-lg bg-surface text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none transition-all resize-none ${
+                      isListening && interimTranscript ? "text-text-secondary" : ""
+                    }`}
+                  />
+                  <div className="absolute bottom-2 right-2">
+                    <MicButton
+                      isListening={isListening}
+                      isSupported={isSupported}
+                      onClick={toggleListening}
+                      variant="compact"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="hidden lg:flex items-center justify-center rounded-xl border border-dashed border-border bg-surface-secondary p-8 text-center">
+              <p className="text-sm text-text-tertiary">
+                Select a template to add details
+              </p>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
