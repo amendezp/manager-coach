@@ -21,6 +21,7 @@ export default function ChatInterface({
   extraControls,
   autoStart,
   onSendReady,
+  headerContent,
 }: {
   flow: FlowType;
   title: string;
@@ -36,6 +37,7 @@ export default function ChatInterface({
   extraControls?: React.ReactNode;
   autoStart?: boolean;
   onSendReady?: (sendFn: (content: string) => void) => void;
+  headerContent?: React.ReactNode;
 }) {
   // Internal state (used when NOT in controlled mode)
   const [internalMessages, setInternalMessages] = useState<Message[]>([]);
@@ -228,6 +230,11 @@ export default function ChatInterface({
         </div>
       ) : (
         <div ref={scrollAreaRef} className="flex-1 overflow-y-auto min-h-0">
+          {headerContent && (
+            <div className="max-w-3xl mx-auto px-4 pt-6 pb-0">
+              {headerContent}
+            </div>
+          )}
           <div className="max-w-3xl mx-auto px-4 py-6 space-y-5">
             {messages.map((message, i) => (
               <MessageBubble

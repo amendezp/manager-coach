@@ -9,7 +9,7 @@ import type { CoachableTemplate, LearningConcept, WizardContext } from "@/lib/ty
 
 /* ─── Expandable framework primer ─── */
 function FrameworkPrimer({ concepts }: { concepts: LearningConcept[] }) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const frameworks = concepts.filter((c) => c.framework);
   if (frameworks.length === 0) return null;
 
