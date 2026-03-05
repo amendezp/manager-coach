@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { SparklesIcon, ArrowRightIcon } from "@/components/Icons";
+import { SparklesIcon, ArrowRightIcon, getIcon } from "@/components/Icons";
 import UserMenu from "@/components/UserMenu";
 
 interface SessionSummary {
   id: string;
   templateId: string | null;
   templateTitle: string | null;
+  context: Record<string, unknown> | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -147,39 +148,56 @@ export default function DashboardPage() {
         {/* Sessions list */}
         {!loading && sessions.length > 0 && (
           <div className="space-y-3 animate-fade-up" style={{ animationDelay: "0.1s" }}>
-            {sessions.map((s, i) => (
-              <Link
-                key={s.id}
-                href={`/dashboard/${s.id}`}
-                className={`group flex items-center gap-4 p-4 rounded-xl border border-border/80 bg-surface hover:border-brand-200 hover:shadow-md hover:shadow-brand-100/50 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 animate-fade-up-sm stagger-${Math.min(i + 1, 6)}`}
-              >
-                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-brand-50 border border-brand-100/80 group-hover:bg-brand-100 group-hover:border-brand-200 flex items-center justify-center transition-colors">
-                  <SparklesIcon className="w-5 h-5 text-brand-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-text-primary group-hover:text-brand-700 transition-colors truncate">
-                    {s.templateTitle || "Coaching Session"}
-                  </p>
-                  <p className="text-xs text-text-tertiary mt-0.5">
-                    {formatDate(s.createdAt)}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-text-tertiary hidden sm:inline">
-                    {getRelativeTime(s.createdAt)}
-                  </span>
-                  <svg
-                    className="w-4 h-4 text-text-tertiary group-hover:text-brand-500 transition-colors"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                  </svg>
-                </div>
-              </Link>
-            ))}
+            {sessions.map((s, i) => {
+              const ctx = s.context as Record<string, unknown> | null;
+              const attendees = (ctx?.attendees as string) || "";
+              const dateTime = (ctx?.dateTime as string) || "";
+              const templateData = ctx?.template as Record<string, unknown> | null;
+              const iconName = (templateData?.icon as string) || "";
+              const IconComponent = iconName ? getIcon(iconName) : SparklesIcon;
+
+              return (
+                <Link
+                  key={s.id}
+                  href={`/dashboard/${s.id}`}
+                  className={`group flex items-center gap-4 p-4 rounded-xl border border-border/80 bg-surface hover:border-brand-200 hover:shadow-md hover:shadow-brand-100/50 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 animate-fade-up-sm stagger-${Math.min(i + 1, 6)}`}
+                >
+                  <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-brand-50 border border-brand-100/80 group-hover:bg-brand-100 group-hover:border-brand-200 flex items-center justify-center transition-colors">
+                    <IconComponent className="w-5 h-5 text-brand-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-text-primary group-hover:text-brand-700 transition-colors truncate">
+                      {s.templateTitle || "Coaching Session"}
+                    </p>
+                    <div className="flex items-center gap-1.5 mt-0.5 text-xs text-text-tertiary">
+                      {attendees && (
+                        <>
+                          <span className="truncate max-w-[200px]">
+                            with {attendees}
+                          </span>
+                          <span className="text-border">·</span>
+                        </>
+                      )}
+                      <span>{dateTime || formatDate(s.createdAt)}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-text-tertiary hidden sm:inline">
+                      {getRelativeTime(s.createdAt)}
+                    </span>
+                    <svg
+                      className="w-4 h-4 text-text-tertiary group-hover:text-brand-500 transition-colors"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                    </svg>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>

@@ -1,15 +1,18 @@
 "use client";
 
-import type { WizardContext, CalendarEvent } from "@/lib/types";
+import type { WizardContext } from "@/lib/types";
+import { getIcon } from "../Icons";
 
 export default function StepContext({
   context,
   onChange,
 }: {
   context: WizardContext;
-  calendarEvent?: CalendarEvent | null;
   onChange: (updates: Partial<WizardContext>) => void;
 }) {
+  const template = context.template;
+  const IconComponent = template ? getIcon(template.icon) : null;
+
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-6 sm:pt-10 sm:pb-8">
       <div className="text-center mb-8 animate-fade-up">
@@ -23,38 +26,60 @@ export default function StepContext({
       </div>
 
       <div className="space-y-5 animate-fade-up" style={{ animationDelay: "0.1s" }}>
-        {/* Nature of interaction */}
-        <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-text-tertiary mb-1.5">
-            Nature of the interaction
-          </label>
-          <input
-            type="text"
-            value={context.interactionNature}
-            onChange={(e) => onChange({ interactionNature: e.target.value })}
-            placeholder="e.g., Scheduled 1:1, Ad-hoc meeting, Performance review cycle..."
-            className="w-full px-4 py-3 rounded-xl border border-border bg-surface text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-brand-300 focus:ring-2 focus:ring-brand-100 transition-all"
-          />
+        {/* Template badge — shows what type of conversation was selected */}
+        {template && (
+          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-50 border border-brand-100">
+            {IconComponent && (
+              <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-brand-100 flex items-center justify-center">
+                <IconComponent className="w-4 h-4 text-brand-600" />
+              </div>
+            )}
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-brand-700 truncate">
+                {template.title}
+              </p>
+              <p className="text-xs text-brand-500 truncate">
+                {template.description}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Two-column row: Attendees + Date */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Attendees */}
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-tertiary mb-1.5">
+              Who is this conversation with?
+            </label>
+            <input
+              type="text"
+              value={context.attendees}
+              onChange={(e) => onChange({ attendees: e.target.value })}
+              placeholder="e.g., Sarah Chen — Senior Engineer"
+              className="w-full px-4 py-3 rounded-xl border border-border bg-surface text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-brand-300 focus:ring-2 focus:ring-brand-100 transition-all"
+            />
+          </div>
+
+          {/* Date picker */}
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-tertiary mb-1.5">
+              When is this happening?
+            </label>
+            <input
+              type="date"
+              value={context.dateTime}
+              onChange={(e) => onChange({ dateTime: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl border border-border bg-surface text-sm text-text-primary focus:outline-none focus:border-brand-300 focus:ring-2 focus:ring-brand-100 transition-all"
+            />
+          </div>
         </div>
 
-        {/* Attendees */}
+        {/* Desired outcome — optional */}
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wider text-text-tertiary mb-1.5">
-            Who is this conversation with?
-          </label>
-          <input
-            type="text"
-            value={context.attendees}
-            onChange={(e) => onChange({ attendees: e.target.value })}
-            placeholder="e.g., Sarah Chen — Senior Engineer, 2 years on team"
-            className="w-full px-4 py-3 rounded-xl border border-border bg-surface text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-brand-300 focus:ring-2 focus:ring-brand-100 transition-all"
-          />
-        </div>
-
-        {/* Goal */}
-        <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-text-tertiary mb-1.5">
-            What&apos;s your desired outcome?
+            Desired outcome{" "}
+            <span className="text-text-tertiary/70 normal-case tracking-normal">(optional)</span>
           </label>
           <input
             type="text"
@@ -65,21 +90,7 @@ export default function StepContext({
           />
         </div>
 
-        {/* Date/time */}
-        <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-text-tertiary mb-1.5">
-            When is this happening?
-          </label>
-          <input
-            type="text"
-            value={context.dateTime}
-            onChange={(e) => onChange({ dateTime: e.target.value })}
-            placeholder="e.g., Tomorrow at 2pm, Friday morning..."
-            className="w-full px-4 py-3 rounded-xl border border-border bg-surface text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-brand-300 focus:ring-2 focus:ring-brand-100 transition-all"
-          />
-        </div>
-
-        {/* Additional context */}
+        {/* Additional context — tall textarea */}
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wider text-text-tertiary mb-1.5">
             Additional context{" "}
@@ -89,7 +100,7 @@ export default function StepContext({
             value={context.additionalContext}
             onChange={(e) => onChange({ additionalContext: e.target.value })}
             placeholder="e.g., This person has been defensive in past feedback conversations. They recently shipped a major feature but have been missing smaller deadlines..."
-            rows={4}
+            rows={6}
             className="w-full px-4 py-3 rounded-xl border border-border bg-surface text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-brand-300 focus:ring-2 focus:ring-brand-100 transition-all resize-none"
           />
         </div>

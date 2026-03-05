@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Message, WizardContext } from "@/lib/types";
 import { DocumentIcon, ClipboardDocIcon, PrinterIcon } from "../Icons";
+import Link from "next/link";
 
 function renderDebriefMarkdown(text: string): string {
   let html = text
@@ -202,7 +203,7 @@ export default function StepDebrief({
           className="text-center mt-6 animate-fade-in"
           style={{ animationDelay: "0.3s" }}
         >
-          <div className="flex items-center justify-center gap-2 mb-2">
+          <div className="flex items-center justify-center gap-2 mb-3">
             {saveStatus === "saving" && (
               <span className="text-xs text-text-tertiary">Saving...</span>
             )}
@@ -218,9 +219,29 @@ export default function StepDebrief({
               <span className="text-xs text-red-500">Could not save session</span>
             )}
           </div>
-          <p className="text-xs text-text-tertiary">
+          <p className="text-xs text-text-tertiary mb-5">
             Good luck with your conversation! You&apos;ve got this.
           </p>
+          <div className="flex items-center justify-center gap-3">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border bg-surface text-sm font-semibold text-text-primary hover:bg-surface-tertiary hover:border-brand-200 transition-all duration-200"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+              </svg>
+              Back to Dashboard
+            </Link>
+            <Link
+              href="/coach"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl gradient-brand text-white text-sm font-semibold shadow-sm hover:shadow-md transition-all duration-200"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              New Session
+            </Link>
+          </div>
         </div>
       )}
     </div>

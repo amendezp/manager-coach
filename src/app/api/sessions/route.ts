@@ -42,6 +42,7 @@ export async function GET() {
       id: coachingSessions.id,
       templateId: coachingSessions.templateId,
       templateTitle: coachingSessions.templateTitle,
+      context: coachingSessions.context,
       createdAt: coachingSessions.createdAt,
       updatedAt: coachingSessions.updatedAt,
     })

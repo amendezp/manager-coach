@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { WizardStep, WizardContext, CoachableTemplate, CalendarEvent, Message } from "@/lib/types";
 import WizardHeader from "@/components/wizard/WizardHeader";
 import WizardNav from "@/components/wizard/WizardNav";
@@ -106,6 +106,21 @@ export default function CoachPage() {
     [context, chatMessages]
   );
 
+  // Check for pre-selected calendar event from landing page
+  useEffect(() => {
+    const stored = sessionStorage.getItem("selectedCalendarEvent");
+    if (stored) {
+      sessionStorage.removeItem("selectedCalendarEvent");
+      try {
+        const event = JSON.parse(stored) as CalendarEvent;
+        handleSelectCalendarEvent(event);
+        setCurrentStep(2 as WizardStep);
+      } catch {
+        // Ignore invalid data
+      }
+    }
+  }, [handleSelectCalendarEvent]);
+
   // Determine if user can advance
   const canAdvance = (() => {
     switch (currentStep) {
@@ -118,10 +133,7 @@ export default function CoachPage() {
         }
         return context.template !== null;
       case 3:
-        return (
-          context.attendees.trim() !== "" &&
-          context.desiredOutcome.trim() !== ""
-        );
+        return context.attendees.trim() !== "";
       case 4:
         return true; // learning is read-only
       case 5:

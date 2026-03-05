@@ -1,9 +1,58 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
-import { SparklesIcon, ArrowRightIcon } from "@/components/Icons";
+import { SparklesIcon, ArrowRightIcon, CalendarIcon } from "@/components/Icons";
 import UserMenu from "@/components/UserMenu";
+
+interface CalendarApiEvent {
+  id: string;
+  title: string;
+  start: string;
+  end: string;
+  attendees: string[];
+}
+
+function formatEventTime(isoString: string) {
+  const date = new Date(isoString);
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  const timeStr = date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+  if (date.toDateString() === today.toDateString()) return `Today at ${timeStr}`;
+  if (date.toDateString() === tomorrow.toDateString())
+    return `Tomorrow at ${timeStr}`;
+
+  return date.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function formatDate(isoString: string) {
+  return new Date(isoString).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function formatTime(isoString: string) {
+  return new Date(isoString).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
 
 const STEPS = [
   {
@@ -29,12 +78,41 @@ const STEPS = [
 export default function LandingPage() {
   const { data: session, status } = useSession();
   const isAuthenticated = status === "authenticated";
+  const router = useRouter();
+
+  const [events, setEvents] = useState<CalendarApiEvent[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(false);
+
+  // Fetch calendar events for authenticated users
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    setEventsLoading(true);
+    fetch("/api/calendar")
+      .then((res) => (res.ok ? res.json() : { events: [] }))
+      .then((data) => setEvents(data.events || []))
+      .catch(() => setEvents([]))
+      .finally(() => setEventsLoading(false));
+  }, [isAuthenticated]);
+
+  const handleSelectEvent = (event: CalendarApiEvent) => {
+    sessionStorage.setItem(
+      "selectedCalendarEvent",
+      JSON.stringify({
+        id: event.id,
+        title: event.title,
+        date: formatDate(event.start),
+        time: formatTime(event.start),
+        attendees: event.attendees,
+      })
+    );
+    router.push("/coach");
+  };
 
   return (
     <div className="min-h-dvh bg-surface-secondary">
       {/* Header */}
       <header className="border-b border-border/60 bg-surface/70 backdrop-blur-xl px-4 py-3">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl gradient-brand flex items-center justify-center shadow-sm shadow-brand-200/30">
               <SparklesIcon className="w-[18px] h-[18px] text-white" />
@@ -49,7 +127,6 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Auth controls */}
           {isAuthenticated && session?.user ? (
             <UserMenu user={session.user} />
           ) : (
@@ -81,96 +158,265 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero */}
-      <div className="max-w-4xl mx-auto px-4 pt-10 sm:pt-16 pb-6">
-        <div className="text-center mb-10 animate-fade-up">
-          <div className="relative inline-flex items-center justify-center mb-6">
-            <div className="absolute inset-0 w-20 h-20 rounded-3xl bg-brand-200/40 blur-2xl" />
-            <div className="relative w-16 h-16 rounded-2xl gradient-brand flex items-center justify-center shadow-xl shadow-brand-500/20">
-              <SparklesIcon className="w-8 h-8 text-white" />
-            </div>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-text-primary mb-4">
-            Your AI Leadership Coach
-          </h2>
-          <p className="text-text-secondary text-base sm:text-lg leading-relaxed max-w-2xl mx-auto mb-8">
-            Prepare for crucial conversations with structured coaching.
-            Rehearse the hard parts, get real-time feedback, and walk in
-            with a personalized prep sheet.
-          </p>
-
-          {/* Primary CTA — changes based on auth state */}
-          {isAuthenticated ? (
-            <div className="flex items-center justify-center gap-3">
-              <Link
-                href="/coach"
-                className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl gradient-brand text-white font-semibold text-base shadow-lg shadow-brand-300/30 hover:shadow-xl hover:shadow-brand-300/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
-              >
-                <span>Start Coaching Session</span>
-                <ArrowRightIcon className="w-5 h-5" />
-              </Link>
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center gap-2 px-6 py-4 rounded-2xl border border-border bg-surface text-text-primary font-semibold text-base hover:bg-surface-tertiary hover:border-brand-200 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
-              >
-                View Dashboard
-              </Link>
-            </div>
-          ) : (
-            <button
-              onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-              className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl gradient-brand text-white font-semibold text-base shadow-lg shadow-brand-300/30 hover:shadow-xl hover:shadow-brand-300/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
-            >
-              <span>Get Started</span>
-              <ArrowRightIcon className="w-5 h-5" />
-            </button>
-          )}
-        </div>
-
-        {/* How it works — 3 steps */}
-        <div
-          className="max-w-2xl mx-auto mb-12 animate-fade-up"
-          style={{ animationDelay: "0.15s" }}
-        >
-          <div className="flex items-center gap-2.5 mb-5 px-1">
-            <div className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-brand-500" />
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-text-tertiary">
-                How it works
-              </h3>
-            </div>
-            <div className="flex-1 h-px bg-border" />
-          </div>
-
-          <div className="space-y-3">
-            {STEPS.map((step, i) => (
-              <div
-                key={step.num}
-                className={`flex items-center gap-4 p-4 rounded-xl border border-border/80 bg-surface animate-fade-up-sm stagger-${i + 1}`}
-              >
-                <div
-                  className={`flex-shrink-0 w-10 h-10 rounded-lg ${step.color} flex items-center justify-center`}
-                >
-                  <span className="text-sm font-bold text-white">
-                    {step.num}
-                  </span>
+      {/* Main Content */}
+      <div className="max-w-5xl mx-auto px-4 pt-10 sm:pt-16 pb-6">
+        {isAuthenticated ? (
+          /* Authenticated: Two-column layout with calendar on right */
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
+            {/* Left column: Hero */}
+            <div className="lg:col-span-3">
+              <div className="mb-8 animate-fade-up">
+                <div className="relative inline-flex items-center justify-center mb-6">
+                  <div className="absolute inset-0 w-20 h-20 rounded-3xl bg-brand-200/40 blur-2xl" />
+                  <div className="relative w-16 h-16 rounded-2xl gradient-brand flex items-center justify-center shadow-xl shadow-brand-500/20">
+                    <SparklesIcon className="w-8 h-8 text-white" />
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-text-primary">
-                    {step.label}
-                  </p>
-                  <p className="text-xs text-text-tertiary mt-0.5">
-                    {step.description}
-                  </p>
+                <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-text-primary mb-4">
+                  Your AI Leadership Coach
+                </h2>
+                <p className="text-text-secondary text-base sm:text-lg leading-relaxed max-w-xl mb-8">
+                  Prepare for crucial conversations with structured coaching.
+                  Rehearse the hard parts, get real-time feedback, and walk in
+                  with a personalized prep sheet.
+                </p>
+
+                <div className="flex items-center gap-3 mb-10">
+                  <Link
+                    href="/coach"
+                    className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl gradient-brand text-white font-semibold text-sm shadow-lg shadow-brand-300/30 hover:shadow-xl hover:shadow-brand-300/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
+                  >
+                    <span>Start Coaching Session</span>
+                    <ArrowRightIcon className="w-4 h-4" />
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    className="inline-flex items-center gap-2 px-5 py-3.5 rounded-2xl border border-border bg-surface text-text-primary font-semibold text-sm hover:bg-surface-tertiary hover:border-brand-200 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
+                  >
+                    View Dashboard
+                  </Link>
                 </div>
               </div>
-            ))}
+
+              {/* How it works */}
+              <div
+                className="animate-fade-up"
+                style={{ animationDelay: "0.15s" }}
+              >
+                <div className="flex items-center gap-2.5 mb-4 px-1">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-brand-500" />
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-text-tertiary">
+                      How it works
+                    </h3>
+                  </div>
+                  <div className="flex-1 h-px bg-border" />
+                </div>
+                <div className="space-y-2.5">
+                  {STEPS.map((step, i) => (
+                    <div
+                      key={step.num}
+                      className={`flex items-center gap-4 p-3.5 rounded-xl border border-border/80 bg-surface animate-fade-up-sm stagger-${i + 1}`}
+                    >
+                      <div
+                        className={`flex-shrink-0 w-9 h-9 rounded-lg ${step.color} flex items-center justify-center`}
+                      >
+                        <span className="text-sm font-bold text-white">
+                          {step.num}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-text-primary">
+                          {step.label}
+                        </p>
+                        <p className="text-xs text-text-tertiary mt-0.5">
+                          {step.description}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right column: Calendar events */}
+            <div className="lg:col-span-2">
+              <div
+                className="rounded-2xl border border-border/80 bg-surface shadow-sm p-5 animate-fade-up sticky top-8"
+                style={{ animationDelay: "0.1s" }}
+              >
+                <div className="flex items-center gap-2.5 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-brand-50 border border-brand-100 flex items-center justify-center">
+                    <CalendarIcon className="w-4 h-4 text-brand-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-text-primary">
+                      Prep for a Meeting
+                    </h3>
+                    <p className="text-[11px] text-text-tertiary">
+                      Select a meeting to start preparing
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+                  {eventsLoading && (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="thinking-dots flex items-center gap-0.5">
+                        <span />
+                        <span />
+                        <span />
+                      </div>
+                    </div>
+                  )}
+
+                  {!eventsLoading && events.length === 0 && (
+                    <div className="text-center py-6">
+                      <CalendarIcon className="w-6 h-6 text-text-tertiary mx-auto mb-2 opacity-50" />
+                      <p className="text-xs text-text-tertiary">
+                        No upcoming meetings found.
+                      </p>
+                    </div>
+                  )}
+
+                  {!eventsLoading &&
+                    events.map((event, i) => (
+                      <button
+                        key={event.id}
+                        onClick={() => handleSelectEvent(event)}
+                        className={`w-full flex items-start gap-3 p-3 rounded-xl border border-border/70 bg-surface-secondary/50 hover:border-brand-200 hover:bg-brand-50/50 hover:shadow-sm text-left transition-all duration-200 animate-fade-up-sm stagger-${Math.min(i + 1, 6)}`}
+                      >
+                        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-brand-50 border border-brand-100/60 flex items-center justify-center mt-0.5">
+                          <CalendarIcon className="w-4 h-4 text-brand-500" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-text-primary truncate">
+                            {event.title}
+                          </p>
+                          <p className="text-[11px] text-text-tertiary mt-0.5">
+                            {formatEventTime(event.start)}
+                          </p>
+                          {event.attendees.length > 0 && (
+                            <p className="text-[11px] text-text-tertiary mt-0.5 truncate">
+                              with {event.attendees.slice(0, 2).join(", ")}
+                              {event.attendees.length > 2 &&
+                                ` +${event.attendees.length - 2}`}
+                            </p>
+                          )}
+                        </div>
+                        <svg
+                          className="w-4 h-4 text-text-tertiary mt-1 flex-shrink-0"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                          />
+                        </svg>
+                      </button>
+                    ))}
+                </div>
+
+                {/* Start fresh CTA */}
+                <div className="mt-4 pt-4 border-t border-border/60">
+                  <Link
+                    href="/coach"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold text-brand-600 bg-brand-50 hover:bg-brand-100 border border-brand-100 hover:border-brand-200 transition-all duration-200"
+                  >
+                    Or start a fresh session
+                    <svg
+                      className="w-3.5 h-3.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                      />
+                    </svg>
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        ) : (
+          /* Not authenticated: Centered layout */
+          <>
+            <div className="text-center mb-10 animate-fade-up">
+              <div className="relative inline-flex items-center justify-center mb-6">
+                <div className="absolute inset-0 w-20 h-20 rounded-3xl bg-brand-200/40 blur-2xl" />
+                <div className="relative w-16 h-16 rounded-2xl gradient-brand flex items-center justify-center shadow-xl shadow-brand-500/20">
+                  <SparklesIcon className="w-8 h-8 text-white" />
+                </div>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-text-primary mb-4">
+                Your AI Leadership Coach
+              </h2>
+              <p className="text-text-secondary text-base sm:text-lg leading-relaxed max-w-2xl mx-auto mb-8">
+                Prepare for crucial conversations with structured coaching.
+                Rehearse the hard parts, get real-time feedback, and walk in
+                with a personalized prep sheet.
+              </p>
+              <button
+                onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+                className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl gradient-brand text-white font-semibold text-base shadow-lg shadow-brand-300/30 hover:shadow-xl hover:shadow-brand-300/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
+              >
+                <span>Get Started</span>
+                <ArrowRightIcon className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div
+              className="max-w-2xl mx-auto mb-12 animate-fade-up"
+              style={{ animationDelay: "0.15s" }}
+            >
+              <div className="flex items-center gap-2.5 mb-5 px-1">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-brand-500" />
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-text-tertiary">
+                    How it works
+                  </h3>
+                </div>
+                <div className="flex-1 h-px bg-border" />
+              </div>
+              <div className="space-y-3">
+                {STEPS.map((step, i) => (
+                  <div
+                    key={step.num}
+                    className={`flex items-center gap-4 p-4 rounded-xl border border-border/80 bg-surface animate-fade-up-sm stagger-${i + 1}`}
+                  >
+                    <div
+                      className={`flex-shrink-0 w-10 h-10 rounded-lg ${step.color} flex items-center justify-center`}
+                    >
+                      <span className="text-sm font-bold text-white">
+                        {step.num}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-text-primary">
+                        {step.label}
+                      </p>
+                      <p className="text-xs text-text-tertiary mt-0.5">
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Footer */}
         <div
-          className="text-center pb-8 animate-fade-in"
+          className="text-center pb-8 mt-8 animate-fade-in"
           style={{ animationDelay: "0.3s" }}
         >
           <p className="text-xs text-text-tertiary">
