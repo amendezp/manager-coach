@@ -132,7 +132,7 @@ export default function SettingsPage() {
         {/* Upload zone */}
         <div
           className={`
-            relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 mb-6 animate-fade-up
+            relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 mb-6 animate-fade-up cursor-pointer
             ${
               dragOver
                 ? "border-brand-700 bg-brand-50 scale-[1.01]"
@@ -141,6 +141,7 @@ export default function SettingsPage() {
             ${uploading ? "opacity-70 pointer-events-none" : ""}
           `}
           style={{ animationDelay: "0.1s" }}
+          onClick={() => !uploading && fileInputRef.current?.click()}
           onDragOver={(e) => {
             e.preventDefault();
             setDragOver(true);
