@@ -1,0 +1,188 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { SparklesIcon, ArrowRightIcon } from "@/components/Icons";
+import UserMenu from "@/components/UserMenu";
+
+interface SessionSummary {
+  id: string;
+  templateId: string | null;
+  templateTitle: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+function formatDate(dateStr: string) {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function getRelativeTime(dateStr: string) {
+  const now = Date.now();
+  const date = new Date(dateStr).getTime();
+  const diff = now - date;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days < 7) return `${days}d ago`;
+  return formatDate(dateStr);
+}
+
+export default function DashboardPage() {
+  const { data: session } = useSession();
+  const [sessions, setSessions] = useState<SessionSummary[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchSessions() {
+      try {
+        const res = await fetch("/api/sessions");
+        if (res.ok) {
+          const data = await res.json();
+          setSessions(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch sessions:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSessions();
+  }, []);
+
+  return (
+    <div className="min-h-dvh bg-surface-secondary">
+      {/* Header */}
+      <header className="border-b border-border/60 bg-surface/70 backdrop-blur-xl px-4 py-3">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl gradient-brand flex items-center justify-center shadow-sm shadow-brand-200/30">
+              <SparklesIcon className="w-[18px] h-[18px] text-white" />
+            </div>
+            <div>
+              <h1 className="text-sm font-bold text-text-primary tracking-tight">
+                AI Coach
+              </h1>
+              <p className="text-[11px] text-text-tertiary leading-tight">
+                Leadership coaching for middle managers
+              </p>
+            </div>
+          </Link>
+
+          {session?.user && <UserMenu user={session.user} />}
+        </div>
+      </header>
+
+      <div className="max-w-4xl mx-auto px-4 pt-8 pb-12">
+        {/* Page title + CTA */}
+        <div className="flex items-center justify-between mb-8 animate-fade-up">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight text-text-primary">
+              Your Sessions
+            </h2>
+            <p className="text-sm text-text-secondary mt-1">
+              Review past coaching sessions and prep sheets.
+            </p>
+          </div>
+          <Link
+            href="/coach"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl gradient-brand text-white font-semibold text-sm shadow-md shadow-brand-300/20 hover:shadow-lg hover:shadow-brand-300/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            New Session
+          </Link>
+        </div>
+
+        {/* Loading state */}
+        {loading && (
+          <div className="flex items-center justify-center py-20">
+            <div className="thinking-dots flex items-center gap-0.5">
+              <span />
+              <span />
+              <span />
+            </div>
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!loading && sessions.length === 0 && (
+          <div className="text-center py-20 animate-fade-up">
+            <div className="relative inline-flex items-center justify-center mb-6">
+              <div className="absolute inset-0 w-16 h-16 rounded-2xl bg-brand-200/30 blur-xl" />
+              <div className="relative w-14 h-14 rounded-2xl bg-brand-50 border border-brand-100 flex items-center justify-center">
+                <SparklesIcon className="w-7 h-7 text-brand-400" />
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold text-text-primary mb-2">
+              No sessions yet
+            </h3>
+            <p className="text-sm text-text-secondary mb-6 max-w-md mx-auto">
+              Start your first coaching session to prepare for a crucial
+              conversation. Your prep sheets will appear here.
+            </p>
+            <Link
+              href="/coach"
+              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl gradient-brand text-white font-semibold text-sm shadow-lg shadow-brand-300/30 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
+            >
+              <span>Start Your First Session</span>
+              <ArrowRightIcon className="w-4 h-4" />
+            </Link>
+          </div>
+        )}
+
+        {/* Sessions list */}
+        {!loading && sessions.length > 0 && (
+          <div className="space-y-3 animate-fade-up" style={{ animationDelay: "0.1s" }}>
+            {sessions.map((s, i) => (
+              <Link
+                key={s.id}
+                href={`/dashboard/${s.id}`}
+                className={`group flex items-center gap-4 p-4 rounded-xl border border-border/80 bg-surface hover:border-brand-200 hover:shadow-md hover:shadow-brand-100/50 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 animate-fade-up-sm stagger-${Math.min(i + 1, 6)}`}
+              >
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-brand-50 border border-brand-100/80 group-hover:bg-brand-100 group-hover:border-brand-200 flex items-center justify-center transition-colors">
+                  <SparklesIcon className="w-5 h-5 text-brand-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-text-primary group-hover:text-brand-700 transition-colors truncate">
+                    {s.templateTitle || "Coaching Session"}
+                  </p>
+                  <p className="text-xs text-text-tertiary mt-0.5">
+                    {formatDate(s.createdAt)}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-text-tertiary hidden sm:inline">
+                    {getRelativeTime(s.createdAt)}
+                  </span>
+                  <svg
+                    className="w-4 h-4 text-text-tertiary group-hover:text-brand-500 transition-colors"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                  </svg>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import type { WizardStep, WizardContext, CoachableTemplate, Message } from "@/lib/types";
+import type { WizardStep, WizardContext, CoachableTemplate, CalendarEvent, Message } from "@/lib/types";
 import WizardHeader from "@/components/wizard/WizardHeader";
 import WizardNav from "@/components/wizard/WizardNav";
 import StepCalendar from "@/components/wizard/StepCalendar";
@@ -26,6 +26,7 @@ export default function CoachPage() {
   const [context, setContext] = useState<WizardContext>(INITIAL_CONTEXT);
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const [feedbackRequested, setFeedbackRequested] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   // Navigation
   const goNext = useCallback(() => {
@@ -58,10 +59,52 @@ export default function CoachPage() {
     setContext((prev) => ({ ...prev, template }));
   }, []);
 
+  // Calendar event selection — pre-populates context fields
+  const handleSelectCalendarEvent = useCallback(
+    (event: CalendarEvent) => {
+      setContext((prev) => ({
+        ...prev,
+        calendarEvent: event,
+        attendees: event.attendees.join(", "),
+        dateTime: `${event.date} at ${event.time}`,
+        interactionNature: event.title,
+      }));
+    },
+    []
+  );
+
   // Feedback request — StepRehearsal handles the actual send via onSendReady
   const handleRequestFeedback = useCallback(() => {
     setFeedbackRequested(true);
   }, []);
+
+  // Auto-save session after debrief generation
+  const handleSaveSession = useCallback(
+    async (debriefContent: string) => {
+      setSaveStatus("saving");
+      try {
+        const res = await fetch("/api/sessions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            templateId: context.template?.id,
+            templateTitle: context.template?.title,
+            context,
+            chatMessages,
+            debriefContent,
+          }),
+        });
+        if (res.ok) {
+          setSaveStatus("saved");
+        } else {
+          setSaveStatus("error");
+        }
+      } catch {
+        setSaveStatus("error");
+      }
+    },
+    [context, chatMessages]
+  );
 
   // Determine if user can advance
   const canAdvance = (() => {
@@ -116,7 +159,12 @@ export default function CoachPage() {
       <WizardHeader currentStep={currentStep} />
 
       <div className={`flex-1 flex flex-col ${currentStep === 5 ? "overflow-hidden" : "overflow-y-auto"}`}>
-        {currentStep === 1 && <StepCalendar onSkip={goNext} />}
+        {currentStep === 1 && (
+          <StepCalendar
+            onSkip={goNext}
+            onSelectEvent={handleSelectCalendarEvent}
+          />
+        )}
 
         {currentStep === 2 && (
           <StepTemplate
@@ -144,7 +192,12 @@ export default function CoachPage() {
         )}
 
         {currentStep === 6 && (
-          <StepDebrief context={context} chatMessages={chatMessages} />
+          <StepDebrief
+            context={context}
+            chatMessages={chatMessages}
+            onSave={handleSaveSession}
+            saveStatus={saveStatus}
+          />
         )}
       </div>
 

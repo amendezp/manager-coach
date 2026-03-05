@@ -48,3 +48,15 @@ export interface WizardContext {
   dateTime: string;
   additionalContext: string;
 }
+
+export interface CoachingSession {
+  id: string;
+  userId: string;
+  templateId: string | null;
+  templateTitle: string | null;
+  context: WizardContext;
+  chatMessages: Message[];
+  debriefContent: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}

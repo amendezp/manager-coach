@@ -43,9 +43,13 @@ function renderDebriefMarkdown(text: string): string {
 export default function StepDebrief({
   context,
   chatMessages,
+  onSave,
+  saveStatus = "idle",
 }: {
   context: WizardContext;
   chatMessages: Message[];
+  onSave?: (debriefContent: string) => void;
+  saveStatus?: "idle" | "saving" | "saved" | "error";
 }) {
   const [debriefContent, setDebriefContent] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -103,6 +107,7 @@ export default function StepDebrief({
       }
 
       setHasGenerated(true);
+      onSave?.(fullText);
     } catch (error) {
       console.error("Debrief error:", error);
       setDebriefContent(
@@ -111,7 +116,7 @@ export default function StepDebrief({
     } finally {
       setIsGenerating(false);
     }
-  }, [context, chatMessages, isGenerating, hasGenerated]);
+  }, [context, chatMessages, isGenerating, hasGenerated, onSave]);
 
   useEffect(() => {
     generateDebrief();
@@ -197,6 +202,22 @@ export default function StepDebrief({
           className="text-center mt-6 animate-fade-in"
           style={{ animationDelay: "0.3s" }}
         >
+          <div className="flex items-center justify-center gap-2 mb-2">
+            {saveStatus === "saving" && (
+              <span className="text-xs text-text-tertiary">Saving...</span>
+            )}
+            {saveStatus === "saved" && (
+              <span className="text-xs text-green-600 flex items-center gap-1">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                Saved to your dashboard
+              </span>
+            )}
+            {saveStatus === "error" && (
+              <span className="text-xs text-red-500">Could not save session</span>
+            )}
+          </div>
           <p className="text-xs text-text-tertiary">
             Good luck with your conversation! You&apos;ve got this.
           </p>
