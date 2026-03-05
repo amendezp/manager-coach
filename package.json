@@ -17,7 +17,7 @@
     "next-auth": "^5.0.0-beta.30",
     "officeparser": "^6.0.4",
     "openai": "^6.25.0",
-    "pdf-parse": "^2.4.5",
+    "pdf-parse": "^1.1.1",
     "postcss": "^8.5.8",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
