@@ -80,7 +80,7 @@ export default function CoachPage() {
     setContext((prev) => ({ ...prev, template }));
   }, []);
 
-  // Calendar event selection — pre-populates context fields
+  // Calendar event selection — pre-populates context fields and auto-advances
   const handleSelectCalendarEvent = useCallback(
     (event: CalendarEvent) => {
       setContext((prev) => ({
@@ -90,6 +90,10 @@ export default function CoachPage() {
         dateTime: event.date,
         interactionNature: event.title,
       }));
+      // Auto-advance to template step after short delay for visual feedback
+      setTimeout(() => {
+        setCurrentStep(2 as WizardStep);
+      }, 300);
     },
     []
   );
@@ -184,8 +188,8 @@ export default function CoachPage() {
     }
   })();
 
-  // Steps 5 (rehearsal) and 6 (debrief) don't show the standard nav
-  const showNav = currentStep <= 4 || (currentStep === 5 && feedbackRequested);
+  // Nav visible for steps 2-4 only (step 1 has inline CTAs, step 5 has chat, step 6 has inline actions)
+  const showNav = (currentStep >= 2 && currentStep <= 4) || (currentStep === 5 && feedbackRequested);
 
   return (
     <div className="h-dvh flex flex-col bg-surface-secondary">
