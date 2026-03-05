@@ -66,9 +66,9 @@ export async function POST(req: Request) {
       let text: string;
 
       if (ext === "pdf") {
-        // pdf-parse exports a function directly (CJS module)
+        // Import from lib/ directly to bypass index.js test-file bug
         // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const pdfParse = require("pdf-parse") as (
+        const pdfParse = require("pdf-parse/lib/pdf-parse") as (
           buf: Buffer
         ) => Promise<{ text: string }>;
         const result = await pdfParse(buffer);
