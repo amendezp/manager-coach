@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -8,6 +8,8 @@ import {
   ClipboardDocIcon,
   PrinterIcon,
 } from "@/components/Icons";
+import MicButton from "@/components/MicButton";
+import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 
 interface SessionDetail {
   id: string;
@@ -20,6 +22,7 @@ interface SessionDetail {
     template?: { title?: string; color?: string };
   } | null;
   debriefContent: string | null;
+  postSessionNotes: string | null;
   createdAt: string;
 }
 
@@ -66,6 +69,27 @@ export default function SessionDetailPage() {
   const [copied, setCopied] = useState(false);
   const [notFound, setNotFound] = useState(false);
 
+  // Notes state
+  const [notes, setNotes] = useState("");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // Speech recognition for notes
+  const {
+    isSupported,
+    isListening,
+    interimTranscript,
+    toggleListening,
+  } = useSpeechRecognition({
+    onTranscript: (transcript) => {
+      setNotes((prev) => (prev ? prev + " " + transcript : transcript));
+    },
+  });
+
+  const displayValue = isListening && interimTranscript
+    ? (notes ? notes + " " + interimTranscript : interimTranscript)
+    : notes;
+
   useEffect(() => {
     async function fetchSession() {
       try {
@@ -73,6 +97,7 @@ export default function SessionDetailPage() {
         if (res.ok) {
           const data = await res.json();
           setSession(data);
+          setNotes(data.postSessionNotes || "");
         } else if (res.status === 404) {
           setNotFound(true);
         }
@@ -84,6 +109,31 @@ export default function SessionDetailPage() {
     }
     if (params.id) fetchSession();
   }, [params.id]);
+
+  const saveNotes = useCallback(async (value: string) => {
+    if (!params.id) return;
+    setSaveStatus("saving");
+    try {
+      const res = await fetch(`/api/sessions/${params.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postSessionNotes: value }),
+      });
+      if (res.ok) {
+        setSaveStatus("saved");
+        if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = setTimeout(() => setSaveStatus("idle"), 2000);
+      }
+    } catch {
+      setSaveStatus("idle");
+    }
+  }, [params.id]);
+
+  const handleNotesBlur = () => {
+    if (notes !== (session?.postSessionNotes || "")) {
+      saveNotes(notes);
+    }
+  };
 
   const handleCopy = async () => {
     if (!session?.debriefContent) return;
@@ -138,7 +188,7 @@ export default function SessionDetailPage() {
 
   return (
     <div className="min-h-full bg-surface-secondary overflow-y-auto">
-      <div className="max-w-3xl mx-auto px-4 pt-6 pb-12 sm:pt-8">
+      <div className="max-w-6xl mx-auto px-4 pt-6 pb-12 sm:pt-8">
         {/* Session header */}
         <div className="flex items-center justify-between mb-6 animate-fade-up">
           <div className="flex items-center gap-3">
@@ -202,23 +252,100 @@ export default function SessionDetailPage() {
           </div>
         )}
 
-        {/* Debrief content */}
-        <div
-          className="debrief-artifact rounded-2xl border border-border/80 bg-surface shadow-sm p-6 sm:p-8 animate-fade-up print:shadow-none print:border-none"
-          style={{ animationDelay: "0.1s" }}
-        >
-          {session.debriefContent ? (
+        {/* Side-by-side: Prep sheet + Notes */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Prep sheet (left, 2/3 width) */}
+          <div className="lg:col-span-2">
             <div
-              className="prose debrief-prose"
-              dangerouslySetInnerHTML={{
-                __html: renderDebriefMarkdown(session.debriefContent),
-              }}
-            />
-          ) : (
-            <p className="text-sm text-text-tertiary">
-              No debrief content available for this session.
-            </p>
-          )}
+              className="debrief-artifact rounded-2xl border border-border/80 bg-surface shadow-sm p-6 sm:p-8 animate-fade-up print:shadow-none print:border-none"
+              style={{ animationDelay: "0.1s" }}
+            >
+              {session.debriefContent ? (
+                <div
+                  className="prose debrief-prose"
+                  dangerouslySetInnerHTML={{
+                    __html: renderDebriefMarkdown(session.debriefContent),
+                  }}
+                />
+              ) : (
+                <p className="text-sm text-text-tertiary">
+                  No debrief content available for this session.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Notes panel (right, 1/3 width, sticky) */}
+          <div className="lg:col-span-1 print:hidden">
+            <div
+              className="rounded-xl border border-border bg-surface p-5 animate-fade-up lg:sticky lg:top-8"
+              style={{ animationDelay: "0.15s" }}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
+                  </svg>
+                  <h3 className="text-sm font-bold text-text-primary">Session Notes</h3>
+                </div>
+                <div className="flex items-center gap-2">
+                  {saveStatus === "saving" && (
+                    <span className="text-[11px] text-text-tertiary">Saving...</span>
+                  )}
+                  {saveStatus === "saved" && (
+                    <span className="text-[11px] text-green-600 flex items-center gap-1">
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                      </svg>
+                      Saved
+                    </span>
+                  )}
+                  <MicButton
+                    isListening={isListening}
+                    isSupported={isSupported}
+                    onClick={toggleListening}
+                    variant="compact"
+                  />
+                </div>
+              </div>
+
+              {/* Prompt when empty */}
+              {!notes && !isListening && (
+                <div className="mb-3 px-3 py-2.5 rounded-lg bg-amber-50 border border-amber-200">
+                  <p className="text-[11px] text-amber-800 leading-relaxed">
+                    Don&apos;t forget to take notes during or right after your meeting.
+                    These notes will help track key events and insights for future coaching sessions.
+                  </p>
+                </div>
+              )}
+
+              {/* Recording indicator */}
+              {isListening && (
+                <div className="flex items-center gap-1.5 mb-2">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500" />
+                  </span>
+                  <span className="text-[11px] text-red-500 font-medium">Recording</span>
+                </div>
+              )}
+
+              <textarea
+                value={displayValue}
+                onChange={(e) => {
+                  if (!isListening || !interimTranscript) {
+                    setNotes(e.target.value);
+                  }
+                }}
+                onBlur={handleNotesBlur}
+                placeholder="How did the conversation go? What would you do differently?"
+                rows={10}
+                className={`w-full px-3 py-2.5 rounded-lg border bg-surface text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-brand-700 transition-all resize-none ${
+                  isListening ? "border-red-300" : "border-border"
+                } ${isListening && interimTranscript ? "text-text-secondary" : ""}`}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

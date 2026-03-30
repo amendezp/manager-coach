@@ -69,6 +69,7 @@ export interface CoachingSession {
   context: WizardContext;
   chatMessages: Message[];
   debriefContent: string | null;
+  postSessionNotes: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -56,6 +56,7 @@ export async function POST(req: Request) {
             templateTitle: coachingSessions.templateTitle,
             context: coachingSessions.context,
             debriefContent: coachingSessions.debriefContent,
+            postSessionNotes: coachingSessions.postSessionNotes,
             createdAt: coachingSessions.createdAt,
           })
           .from(coachingSessions)
@@ -76,7 +77,10 @@ export async function POST(req: Request) {
               const debrief = s.debriefContent
                 ? s.debriefContent.slice(0, 500) + (s.debriefContent.length > 500 ? "..." : "")
                 : "No prep sheet generated";
-              return `### ${s.templateTitle || "Session"} (${date})\n- Goal: ${ctx?.desiredOutcome || "Not specified"}\n- Context: ${ctx?.additionalContext || "None"}\n- Prep sheet excerpt: ${debrief}`;
+              const notesLine = s.postSessionNotes
+                ? `\n- Manager's post-session notes: ${s.postSessionNotes.slice(0, 500)}${s.postSessionNotes.length > 500 ? "..." : ""}`
+                : "";
+              return `### ${s.templateTitle || "Session"} (${date})\n- Goal: ${ctx?.desiredOutcome || "Not specified"}\n- Context: ${ctx?.additionalContext || "None"}${notesLine}\n- Prep sheet excerpt: ${debrief}`;
             })
             .join("\n\n");
         }

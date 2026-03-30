@@ -1,0 +1,1 @@
+ALTER TABLE "coaching_session" ADD COLUMN "postSessionNotes" text;

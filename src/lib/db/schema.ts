@@ -90,6 +90,7 @@ export const coachingSessions = pgTable("coaching_session", {
   context: jsonb("context"),
   chatMessages: jsonb("chatMessages"),
   debriefContent: text("debriefContent"),
+  postSessionNotes: text("postSessionNotes"),
   createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
   updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
 });
