@@ -1,6 +1,6 @@
 import type { WizardContext } from "../types";
 
-export function buildDebriefPrompt(context: WizardContext, ragContext?: string): string {
+export function buildDebriefPrompt(context: WizardContext, ragContext?: string, pastSessionSummaries?: string): string {
   const templateName = context.template?.title || "a management conversation";
 
   const ragSection = ragContext
@@ -16,7 +16,12 @@ export function buildDebriefPrompt(context: WizardContext, ragContext?: string):
 - **When**: ${context.dateTime || "Not specified"}
 - **Nature of the interaction**: ${context.interactionNature || "Not specified"}
 - **Additional context**: ${context.additionalContext || "None provided"}${ragSection}
+${pastSessionSummaries ? `
+## Previous Sessions With This Person
+${pastSessionSummaries}
 
+When generating the prep sheet, incorporate relevant patterns and progress from past sessions. Reference what was discussed before and how goals have evolved.
+` : ""}
 ## Your Task
 
 Based on the rehearsal conversation that was just completed (provided in the messages), generate a comprehensive preparation document. The manager will use this as their reference going into the real conversation.

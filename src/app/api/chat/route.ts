@@ -1,5 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { auth } from "@/auth";
+import { getDb } from "@/lib/db";
+import { coachingSessions } from "@/lib/db/schema";
+import { eq, and, desc } from "drizzle-orm";
 import { buildRehearsalPrompt } from "@/lib/prompts/wizard";
 import { buildDebriefPrompt } from "@/lib/prompts/debrief";
 import {
@@ -41,13 +44,55 @@ export async function POST(req: Request) {
     }
   }
 
+  // ── Fetch past sessions for team member context ──
+  let pastSessionSummaries = "";
+
+  if ((flow === "wizard" || flow === "debrief") && context?.teamMemberId) {
+    try {
+      const session = await auth();
+      if (session?.user?.id) {
+        const pastSessions = await getDb()
+          .select({
+            templateTitle: coachingSessions.templateTitle,
+            context: coachingSessions.context,
+            debriefContent: coachingSessions.debriefContent,
+            createdAt: coachingSessions.createdAt,
+          })
+          .from(coachingSessions)
+          .where(
+            and(
+              eq(coachingSessions.teamMemberId, context.teamMemberId as string),
+              eq(coachingSessions.userId, session.user.id)
+            )
+          )
+          .orderBy(desc(coachingSessions.createdAt))
+          .limit(5);
+
+        if (pastSessions.length > 0) {
+          pastSessionSummaries = pastSessions
+            .map((s) => {
+              const ctx = s.context as WizardContext | null;
+              const date = new Date(s.createdAt).toLocaleDateString();
+              const debrief = s.debriefContent
+                ? s.debriefContent.slice(0, 500) + (s.debriefContent.length > 500 ? "..." : "")
+                : "No prep sheet generated";
+              return `### ${s.templateTitle || "Session"} (${date})\n- Goal: ${ctx?.desiredOutcome || "Not specified"}\n- Context: ${ctx?.additionalContext || "None"}\n- Prep sheet excerpt: ${debrief}`;
+            })
+            .join("\n\n");
+        }
+      }
+    } catch (err) {
+      console.error("Past sessions fetch error (non-blocking):", err);
+    }
+  }
+
   // ── Build system prompt ──
   let systemPrompt: string;
 
   if (flow === "wizard" && context) {
-    systemPrompt = buildRehearsalPrompt(context as WizardContext, ragContext);
+    systemPrompt = buildRehearsalPrompt(context as WizardContext, ragContext, pastSessionSummaries || undefined);
   } else if (flow === "debrief" && context) {
-    systemPrompt = buildDebriefPrompt(context as WizardContext, ragContext);
+    systemPrompt = buildDebriefPrompt(context as WizardContext, ragContext, pastSessionSummaries || undefined);
   } else {
     // Only wizard and debrief flows are supported
     systemPrompt = buildRehearsalPrompt(

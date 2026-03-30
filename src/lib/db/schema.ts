@@ -61,6 +61,21 @@ export const verificationTokens = pgTable(
   })
 );
 
+// ── Team members ────────────────────────────────────────────────
+
+export const teamMembers = pgTable("team_member", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  email: text("email"),
+  role: text("role"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow().notNull(),
+});
+
 // ── Coaching sessions ────────────────────────────────────────────
 
 export const coachingSessions = pgTable("coaching_session", {
@@ -68,6 +83,8 @@ export const coachingSessions = pgTable("coaching_session", {
   userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  teamMemberId: uuid("teamMemberId")
+    .references(() => teamMembers.id, { onDelete: "set null" }),
   templateId: text("templateId"),
   templateTitle: text("templateTitle"),
   context: jsonb("context"),

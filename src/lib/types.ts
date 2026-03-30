@@ -40,11 +40,22 @@ export interface CalendarEvent {
   attendees: string[];
 }
 
+export interface TeamMember {
+  id: string;
+  name: string;
+  email: string | null;
+  role: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface WizardContext {
   calendarEvent?: CalendarEvent | null;
   template: CoachableTemplate | null;
   interactionNature: string;
   attendees: string;
+  teamMemberId?: string | null;
   desiredOutcome: string;
   dateTime: string;
   additionalContext: string;

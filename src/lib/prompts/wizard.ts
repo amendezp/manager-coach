@@ -1,6 +1,6 @@
 import type { WizardContext } from "../types";
 
-export function buildRehearsalPrompt(context: WizardContext, ragContext?: string): string {
+export function buildRehearsalPrompt(context: WizardContext, ragContext?: string, pastSessionSummaries?: string): string {
   const templateName = context.template?.title || "a management conversation";
   const learningFrameworks =
     context.template?.learningConcepts
@@ -20,7 +20,17 @@ export function buildRehearsalPrompt(context: WizardContext, ragContext?: string
 - **When**: ${context.dateTime || "Not specified"}
 - **Additional context from the manager**: ${context.additionalContext || "None provided"}
 
-## Relevant Frameworks
+${pastSessionSummaries ? `## History With This Person
+You have coached this manager on conversations with ${context.attendees} before. Here is a summary of past sessions:
+${pastSessionSummaries}
+
+Use this history to:
+- Reference patterns you've noticed (e.g., "Last time you worked on X with them...")
+- Build on progress from previous sessions
+- Avoid repeating the same advice
+- Acknowledge growth or recurring challenges
+
+` : ""}## Relevant Frameworks
 The manager has just reviewed these concepts. Reference them naturally when relevant — don't lecture about them:
 ${learningFrameworks}${ragSection}
 

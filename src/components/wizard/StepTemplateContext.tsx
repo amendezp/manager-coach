@@ -6,6 +6,7 @@ import { getIcon, PencilIcon } from "../Icons";
 import MicButton from "../MicButton";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import type { CoachableTemplate, LearningConcept, WizardContext } from "@/lib/types";
+import TeamMemberPicker from "./TeamMemberPicker";
 
 /* ─── Expandable framework primer ─── */
 function FrameworkPrimer({ concepts }: { concepts: LearningConcept[] }) {
@@ -101,10 +102,12 @@ export default function StepTemplateContext({
   context,
   onContextChange,
   onTemplateSelect,
+  isGuest = false,
 }: {
   context: WizardContext;
   onContextChange: (updates: Partial<WizardContext>) => void;
   onTemplateSelect: (template: CoachableTemplate) => void;
+  isGuest?: boolean;
 }) {
   const [customMode, setCustomMode] = useState(
     context.template?.id === "custom"
@@ -338,20 +341,12 @@ export default function StepTemplateContext({
               </p>
 
               {/* Attendees */}
-              <div>
-                <label className="block text-sm-caps text-text-tertiary mb-1.5">
-                  Who is this with?
-                </label>
-                <input
-                  type="text"
-                  value={context.attendees}
-                  onChange={(e) =>
-                    onContextChange({ attendees: e.target.value })
-                  }
-                  placeholder="e.g., Sarah Chen — Senior Engineer"
-                  className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-brand-700 transition-all"
-                />
-              </div>
+              <TeamMemberPicker
+                attendees={context.attendees}
+                teamMemberId={context.teamMemberId}
+                onChange={onContextChange}
+                isGuest={isGuest}
+              />
 
               {/* Date */}
               <div>

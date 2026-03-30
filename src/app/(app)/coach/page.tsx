@@ -120,6 +120,7 @@ export default function CoachPage() {
           body: JSON.stringify({
             templateId: context.template?.id,
             templateTitle: context.template?.title,
+            teamMemberId: context.teamMemberId || null,
             context,
             chatMessages,
             debriefContent,
@@ -213,6 +214,7 @@ export default function CoachPage() {
             context={context}
             onContextChange={updateContext}
             onTemplateSelect={selectTemplate}
+            isGuest={isGuest}
           />
         )}
 

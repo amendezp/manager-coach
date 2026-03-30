@@ -12,13 +12,14 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
-  const { templateId, templateTitle, context, chatMessages, debriefContent } =
+  const { templateId, templateTitle, context, chatMessages, debriefContent, teamMemberId } =
     body;
 
   const [saved] = await getDb()
     .insert(coachingSessions)
     .values({
       userId: session.user.id,
+      teamMemberId: teamMemberId || null,
       templateId,
       templateTitle,
       context,
