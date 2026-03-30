@@ -22,6 +22,8 @@ export default function TeamPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [expandedData, setExpandedData] = useState<TeamMemberWithSessions | null>(null);
   const [expandedLoading, setExpandedLoading] = useState(false);
+  const [insights, setInsights] = useState<string | null>(null);
+  const [insightsLoading, setInsightsLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -127,14 +129,27 @@ export default function TeamPage() {
     if (expandedId === id) {
       setExpandedId(null);
       setExpandedData(null);
+      setInsights(null);
       return;
     }
     setExpandedId(id);
     setExpandedLoading(true);
+    setInsights(null);
     try {
       const res = await fetch(`/api/team-members/${id}`);
       if (res.ok) {
-        setExpandedData(await res.json());
+        const data = await res.json();
+        setExpandedData(data);
+
+        // Fetch insights if there are sessions
+        if (data.sessions && data.sessions.length > 0) {
+          setInsightsLoading(true);
+          fetch(`/api/team-members/${id}/insights`, { method: "POST" })
+            .then((r) => (r.ok ? r.json() : { insights: null }))
+            .then((d) => setInsights(d.insights || null))
+            .catch(() => setInsights(null))
+            .finally(() => setInsightsLoading(false));
+        }
       }
     } catch {
       console.error("Failed to fetch member details");
@@ -339,6 +354,29 @@ export default function TeamPage() {
                         <div className="mb-4">
                           <p className="text-sm-caps text-text-tertiary mb-1">Notes</p>
                           <p className="text-sm text-text-secondary">{member.notes}</p>
+                        </div>
+                      )}
+
+                      {/* AI Insights */}
+                      {insightsLoading && (
+                        <div className="mb-4 p-3 rounded-lg border border-brand-200 bg-brand-50/50">
+                          <div className="flex items-center gap-2">
+                            <div className="thinking-dots flex items-center gap-0.5"><span /><span /><span /></div>
+                            <span className="text-xs text-text-tertiary">Generating insights...</span>
+                          </div>
+                        </div>
+                      )}
+                      {insights && (
+                        <div className="mb-4 p-4 rounded-lg border border-brand-200 bg-brand-50/30">
+                          <div className="flex items-center gap-2 mb-2">
+                            <svg className="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+                            </svg>
+                            <p className="text-sm font-semibold text-text-primary">Insights</p>
+                          </div>
+                          <div className="text-xs text-text-secondary leading-relaxed whitespace-pre-wrap prose-sm">
+                            {insights}
+                          </div>
                         </div>
                       )}
 
