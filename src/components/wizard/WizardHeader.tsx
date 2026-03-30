@@ -13,16 +13,20 @@ const STEPS: { step: WizardStep; label: string; shortLabel: string }[] = [
 export default function WizardHeader({
   currentStep,
   onStepClick,
+  isGuest,
 }: {
   currentStep: WizardStep;
   onStepClick?: (step: WizardStep) => void;
+  isGuest?: boolean;
 }) {
+  const visibleSteps = isGuest ? STEPS.filter((s) => s.step !== 1) : STEPS;
+
   return (
     <header className="flex-shrink-0 border-b border-border bg-surface/80 backdrop-blur-xl px-4 py-2.5 z-10">
       <div className="max-w-3xl mx-auto">
         {/* Step indicator */}
         <div className="flex items-center gap-1">
-          {STEPS.map(({ step, label, shortLabel }, i) => {
+          {visibleSteps.map(({ step, label, shortLabel }, i) => {
             const isCompleted = step < currentStep;
             const isCurrent = step === currentStep;
             const isFuture = step > currentStep;
@@ -46,7 +50,7 @@ export default function WizardHeader({
                     {isCompleted ? (
                       <CheckIcon className="w-3.5 h-3.5" />
                     ) : (
-                      step
+                      isGuest ? i + 1 : step
                     )}
                   </button>
                   <span
@@ -72,7 +76,7 @@ export default function WizardHeader({
                     {shortLabel}
                   </span>
                 </div>
-                {i < STEPS.length - 1 && (
+                {i < visibleSteps.length - 1 && (
                   <div
                     className={`flex-1 h-0.5 mx-1.5 rounded-full transition-colors duration-300 ${
                       step < currentStep ? "bg-brand-700" : "bg-brand-200"

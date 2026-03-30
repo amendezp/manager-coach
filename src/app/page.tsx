@@ -324,6 +324,14 @@ export default function LandingPage() {
                 <span>Get Started</span>
                 <ArrowRightIcon className="w-5 h-5" />
               </button>
+              <div className="mt-3">
+                <Link
+                  href="/coach"
+                  className="text-sm text-text-secondary hover:text-brand-600 transition-colors duration-200"
+                >
+                  Try without signing in &rarr;
+                </Link>
+              </div>
             </div>
 
             <div className="max-w-2xl mx-auto mb-12 animate-fade-up" style={{ animationDelay: "0.15s" }}>

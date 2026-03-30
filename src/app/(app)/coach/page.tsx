@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import type { WizardStep, WizardContext, CoachableTemplate, CalendarEvent, Message } from "@/lib/types";
 import WizardHeader from "@/components/wizard/WizardHeader";
 import WizardNav from "@/components/wizard/WizardNav";
@@ -20,11 +21,14 @@ const INITIAL_CONTEXT: WizardContext = {
 };
 
 export default function CoachPage() {
+  const { status } = useSession();
+  const isGuest = status === "unauthenticated";
+
   const [currentStep, setCurrentStep] = useState<WizardStep>(1);
   const [context, setContext] = useState<WizardContext>(INITIAL_CONTEXT);
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const [feedbackRequested, setFeedbackRequested] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error" | "guest">("idle");
 
   // Navigation
   const goToStep = useCallback(
@@ -52,9 +56,9 @@ export default function CoachPage() {
   }, [currentStep, goToStep]);
 
   const goBack = useCallback(() => {
-    const prev = Math.max(currentStep - 1, 1) as WizardStep;
+    const prev = Math.max(currentStep - 1, isGuest ? 2 : 1) as WizardStep;
     goToStep(prev);
-  }, [currentStep, goToStep]);
+  }, [currentStep, goToStep, isGuest]);
 
   // Skip rehearsal — jump from step 2 (Prepare) directly to step 4 (Prep Sheet)
   const skipToDebrief = useCallback(() => {
@@ -104,6 +108,10 @@ export default function CoachPage() {
   // Auto-save session after debrief generation
   const handleSaveSession = useCallback(
     async (debriefContent: string) => {
+      if (isGuest) {
+        setSaveStatus("guest");
+        return;
+      }
       setSaveStatus("saving");
       try {
         const res = await fetch("/api/sessions", {
@@ -126,8 +134,15 @@ export default function CoachPage() {
         setSaveStatus("error");
       }
     },
-    [context, chatMessages]
+    [context, chatMessages, isGuest]
   );
+
+  // Auto-skip calendar step for guests (no Google tokens)
+  useEffect(() => {
+    if (status !== "loading" && isGuest && currentStep === 1) {
+      setCurrentStep(2 as WizardStep);
+    }
+  }, [status, isGuest, currentStep]);
 
   // Check for pre-selected calendar event from landing page
   useEffect(() => {
@@ -183,7 +198,7 @@ export default function CoachPage() {
 
   return (
     <div className="h-full flex flex-col bg-surface-secondary">
-      <WizardHeader currentStep={currentStep} onStepClick={handleStepClick} />
+      <WizardHeader currentStep={currentStep} onStepClick={handleStepClick} isGuest={isGuest} />
 
       <div className={`flex-1 flex flex-col ${currentStep === 3 ? "overflow-hidden" : "overflow-y-auto"}`}>
         {currentStep === 1 && (
@@ -217,6 +232,7 @@ export default function CoachPage() {
             chatMessages={chatMessages}
             onSave={handleSaveSession}
             saveStatus={saveStatus}
+            isGuest={isGuest}
           />
         )}
       </div>

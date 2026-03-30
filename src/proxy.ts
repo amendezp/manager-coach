@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function proxy(req: NextRequest) {
   const isProtected =
-    req.nextUrl.pathname.startsWith("/coach") ||
-    req.nextUrl.pathname.startsWith("/dashboard");
+    req.nextUrl.pathname.startsWith("/dashboard") ||
+    req.nextUrl.pathname.startsWith("/settings");
 
   if (!isProtected) {
     return NextResponse.next();
